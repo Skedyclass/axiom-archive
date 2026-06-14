@@ -1,0 +1,637 @@
+/* ══════════════════════════════════════════════════════════════════
+   AXIOM ARCHIVE — TERMINAL CLANDESTINA
+   Diegetic / Retro-industrial 80s. Monocromo fósforo (ámbar/verde/hueso)
+   sobre negro grafito. Sin esquinas redondeadas, sin sombras suaves,
+   sin transiciones fluidas. Solo tipografías de matriz / monoespaciadas.
+══════════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap');
+
+:root {
+  /* Fósforo */
+  --amber:      #ffb000;
+  --amber-dim:  #b97e00;
+  --green:      #00ff00;
+  --green-dim:  #119a11;
+  --bone:       #e7e3d2;
+
+  /* Estructura industrial */
+  --black:      #000000;
+  --graphite:   #0c0d0c;
+  --panel:      #121312;
+  --panel-2:    #1a1b1a;
+  --line:       #2c2e2c;
+  --line-hot:   #3f463f;
+
+  /* Físico escaneado (papel plano, baja resolución) */
+  --paper:        #c7c2ad;
+  --paper-dark:   #b3ad95;
+  --paper-stain:  #a59e84;
+  --ink:          #14130d;
+  --ink-faded:    #3a382c;
+  --ink-light:    #5e5a48;
+  --border:       #6f6a54;
+
+  /* Acentos crudos */
+  --red:        #ff0000;
+  --red-stamp:  #c81616;
+
+  /* compat (clases antiguas) */
+  --blue-stamp: var(--green-dim);
+  --purple-mark:var(--amber);
+  --teal-mark:  var(--green);
+  --amber-mark: var(--amber);
+  --shadow:     rgba(0,0,0,0.6);
+  --bg:         var(--black);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body { background: var(--black); }
+
+body {
+  font-family: 'VT323', 'Courier New', monospace;
+  color: var(--amber);
+  min-height: 100vh;
+  font-size: 18px;            /* VT323 es pequeña: subimos base */
+  letter-spacing: 0.02em;
+  -webkit-font-smoothing: none;
+  text-rendering: optimizeSpeed;
+}
+
+/* Fondo grafito con trama industrial tenue */
+.crt__content {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 3px, rgba(255,176,0,0.012) 3px 4px),
+    var(--graphite);
+  /* Parpadeo de fósforo: 98% → 100%, casi imperceptible */
+  animation: crt-flicker 5.2s steps(60) infinite;
+}
+
+@keyframes crt-flicker {
+  0%, 100% { opacity: 1; }
+  3%   { opacity: 0.985; }
+  6%   { opacity: 1; }
+  47%  { opacity: 0.99; }
+  48%  { opacity: 0.97; }
+  49%  { opacity: 1; }
+  82%  { opacity: 0.992; }
+}
+
+/* ── CAPA 1: Scanlines + sangrado de fósforo ── */
+.crt__scanlines {
+  position: fixed; inset: 0; z-index: 99990; pointer-events: none;
+  background:
+    repeating-linear-gradient(0deg,
+      rgba(0,0,0,0.0) 0px,
+      rgba(0,0,0,0.0) 1px,
+      rgba(0,0,0,0.32) 2px,
+      rgba(0,0,0,0.32) 3px);
+  mix-blend-mode: multiply;
+}
+.crt__scanlines::after {
+  /* barrido horizontal lento */
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(255,176,0,0.04), transparent 40%);
+  animation: crt-sweep 7s linear infinite;
+}
+@keyframes crt-sweep {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+/* ── CAPA 2: Viñeta / curvatura del cristal ── */
+.crt__vignette {
+  position: fixed; inset: 0; z-index: 99991; pointer-events: none;
+  background:
+    radial-gradient(ellipse 120% 120% at 50% 50%,
+      transparent 55%, rgba(0,0,0,0.55) 88%, rgba(0,0,0,0.9) 100%);
+}
+
+/* ── CAPA 3: Brillo de tubo + bordes superior/inferior ── */
+.crt__glow {
+  position: fixed; inset: 0; z-index: 99992; pointer-events: none;
+  box-shadow:
+    inset 0 0 120px rgba(255,176,0,0.04),
+    inset 0 0 8px rgba(0,0,0,0.8);
+}
+
+/* Aberración cromática sutil en textos del sistema */
+.crt-text,
+.archive-logo, .login-logo, .folder-title, .folder-header-title {
+  text-shadow:
+    -0.6px 0 rgba(255,0,80,0.35),
+     0.6px 0 rgba(0,200,255,0.30);
+}
+
+/* ══════════════════════════════════════════
+   LOGIN
+══════════════════════════════════════════ */
+.login-wrap {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  padding: 2rem;
+}
+.login-card {
+  background: var(--panel);
+  border: 2px solid var(--line-hot);
+  max-width: 480px; width: 100%;
+  padding: 2.5rem 2rem 2rem;
+  position: relative;
+}
+.login-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 4px;
+  background: repeating-linear-gradient(90deg, var(--amber) 0 24px, transparent 24px 34px);
+}
+.login-header { text-align: center; margin-bottom: 2rem; }
+.login-logo {
+  font-family: 'VT323', monospace;
+  font-size: 3rem; color: var(--amber); line-height: 1; letter-spacing: 0.2em;
+}
+.login-sub {
+  font-size: 0.95rem; letter-spacing: 0.18em; color: var(--amber-dim);
+  margin-top: 0.4rem; text-transform: uppercase;
+}
+.login-divider { display: flex; align-items: center; gap: 0.75rem; margin: 1.5rem 0; }
+.login-divider::before, .login-divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--line-hot);
+}
+.login-divider span { font-size: 0.85rem; color: var(--amber-dim); letter-spacing: 0.2em; white-space: nowrap; }
+.login-stamp {
+  position: absolute; top: 1.2rem; right: 1.2rem;
+  border: 2px solid var(--red-stamp); padding: 0.3rem 0.5rem;
+  color: var(--red-stamp); font-family: 'VT323', monospace;
+  font-size: 0.9rem; letter-spacing: 0.12em; line-height: 1.2; text-align: center;
+}
+.code-label {
+  font-size: 0.9rem; letter-spacing: 0.2em; color: var(--amber-dim);
+  text-transform: uppercase; margin-bottom: 0.4rem; display: block;
+}
+.code-label::before { content: '> '; }
+.code-input {
+  width: 100%;
+  background: var(--black);
+  border: 2px solid var(--line-hot);
+  padding: 0.7rem 1rem;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1.2rem; letter-spacing: 0.25em;
+  color: var(--green); outline: none; text-transform: uppercase; text-align: center;
+}
+.code-input:focus { border-color: var(--amber); }
+.code-input::placeholder { color: var(--green-dim); }
+.login-btn {
+  width: 100%; margin-top: 1.25rem; padding: 0.8rem;
+  background: var(--amber); color: var(--black);
+  border: 2px solid var(--amber);
+  font-family: 'VT323', monospace; font-size: 1.1rem;
+  letter-spacing: 0.25em; text-transform: uppercase; cursor: pointer;
+}
+.login-btn:hover { background: var(--black); color: var(--amber); }
+.login-btn:active { transform: none; }
+.login-error {
+  margin-top: 1rem; padding: 0.5rem 0.7rem;
+  background: var(--black); border: 1px solid var(--red-stamp);
+  border-left: 4px solid var(--red); color: var(--red);
+  font-size: 0.9rem; letter-spacing: 0.1em;
+}
+.login-footer {
+  margin-top: 2rem; text-align: center; font-size: 0.8rem;
+  color: var(--amber-dim); letter-spacing: 0.12em; line-height: 1.7;
+  border-top: 1px solid var(--line); padding-top: 1.25rem;
+}
+
+/* ══════════════════════════════════════════
+   ARCHIVE — DASHBOARD
+══════════════════════════════════════════ */
+.archive-wrap { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+.archive-topbar {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  padding: 1rem 0; border-bottom: 2px solid var(--line-hot); margin-bottom: 2rem;
+}
+.archive-logo {
+  font-family: 'VT323', monospace; color: var(--amber);
+  font-size: 1.9rem; letter-spacing: 0.18em;
+}
+.archive-meta {
+  font-size: 0.85rem; color: var(--amber-dim); letter-spacing: 0.1em;
+  text-align: right; line-height: 1.6;
+}
+.logout-btn {
+  font-family: 'VT323', monospace; font-size: 0.85rem; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--amber);
+  background: var(--black); border: 1px solid var(--line-hot);
+  padding: 0.35rem 0.7rem; cursor: pointer; text-decoration: none;
+  display: inline-block; margin-left: 1rem;
+}
+.logout-btn:hover { background: var(--amber); color: var(--black); }
+
+.archive-intro { margin-bottom: 2rem; padding: 1rem 1.25rem; border-left: 4px solid var(--line-hot); }
+.archive-intro p {
+  font-size: 0.95rem; letter-spacing: 0.06em; color: var(--amber-dim);
+  line-height: 1.7; text-transform: uppercase;
+}
+
+/* CTA mesa de trabajo — botón rústico */
+.workspace-cta {
+  display: flex; align-items: center; gap: 1rem;
+  margin-bottom: 2rem; padding: 1rem 1.25rem;
+  background: var(--panel); border: 2px solid var(--line-hot);
+  border-left: 5px solid var(--amber);
+  text-decoration: none; color: inherit;
+}
+.workspace-cta:hover { background: var(--panel-2); border-left-color: var(--green); }
+.workspace-cta-ico { font-size: 1.4rem; color: var(--amber); }
+.workspace-cta-text { flex: 1; font-size: 0.9rem; color: var(--amber-dim); line-height: 1.5; }
+.workspace-cta-text strong {
+  display: block; font-family: 'VT323', monospace; font-size: 1.25rem;
+  letter-spacing: 0.12em; color: var(--amber); margin-bottom: 0.1rem;
+}
+.workspace-cta-go { font-size: 0.9rem; letter-spacing: 0.15em; color: var(--green); white-space: nowrap; }
+
+.agent-divider { display: flex; align-items: center; gap: 1rem; margin: 2.5rem 0 1.25rem; }
+.agent-divider::before, .agent-divider::after { content: ''; flex: 1; height: 1px; background: var(--line-hot); }
+.agent-divider span {
+  font-family: 'VT323', monospace; font-size: 1.05rem;
+  letter-spacing: 0.25em; color: var(--amber); white-space: nowrap;
+}
+.agent-divider span::before { content: '// '; color: var(--amber-dim); }
+
+.folders-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;
+}
+
+/* Tarjeta de expediente — caja rústica de terminal */
+.folder-card {
+  background: var(--panel);
+  border: 2px solid var(--line-hot);
+  padding: 1.1rem 1.25rem; cursor: pointer; text-decoration: none; color: inherit;
+  display: block; position: relative;
+}
+.folder-card::before {
+  content: '';
+  position: absolute; top: -2px; left: 16px; width: 70px; height: 6px;
+  background: var(--line-hot);
+}
+.folder-card:hover { border-color: var(--amber); }
+.folder-card:active { transform: none; }
+
+.folder-classification {
+  font-size: 0.8rem; letter-spacing: 0.18em; text-transform: uppercase;
+  margin-bottom: 0.6rem; color: var(--amber);
+}
+.cls-red    { color: var(--red); }
+.cls-purple { color: var(--amber); }
+.cls-teal   { color: var(--green); }
+.cls-amber  { color: var(--amber); }
+.cls-blue   { color: var(--green-dim); }
+
+.folder-title {
+  font-family: 'VT323', monospace; font-size: 1.35rem; color: var(--bone);
+  line-height: 1.15; margin-bottom: 0.4rem; letter-spacing: 0.06em;
+}
+.folder-date {
+  font-family: 'Share Tech Mono', monospace; font-size: 0.8rem;
+  color: var(--amber-dim); letter-spacing: 0.08em; margin-bottom: 0.6rem;
+}
+.folder-desc {
+  font-size: 0.9rem; color: var(--amber-dim); line-height: 1.5;
+  border-top: 1px solid var(--line); padding-top: 0.6rem;
+}
+.folder-count {
+  margin-top: 0.75rem; font-size: 0.85rem; color: var(--green); letter-spacing: 0.1em;
+}
+.folder-clip {
+  position: absolute; top: -2px; right: 1.2rem; width: 16px; height: 22px;
+  border: 2px solid var(--line-hot); background: var(--panel-2);
+}
+
+/* Expedientes del agente */
+.folder-card--agent { border-left: 5px solid var(--amber); }
+.folder-card--agent.is-missing { opacity: 0.55; border-left-color: var(--red); }
+.agent-ribbon {
+  position: absolute; top: 0.5rem; right: 0;
+  background: var(--amber); color: var(--black);
+  font-size: 0.7rem; letter-spacing: 0.18em; padding: 0.15rem 0.5rem;
+}
+
+/* Estado vacío */
+.archive-empty {
+  max-width: 560px; margin: 1.5rem auto; padding: 2.5rem 2rem; text-align: center;
+  border: 2px dashed var(--line-hot);
+}
+.archive-empty-stamp {
+  display: inline-block; font-family: 'VT323', monospace; font-size: 1.1rem;
+  letter-spacing: 0.25em; color: var(--red); border: 2px solid var(--red);
+  padding: 0.3rem 0.7rem; margin-bottom: 1.25rem;
+}
+.archive-empty p {
+  font-size: 0.95rem; line-height: 1.8; letter-spacing: 0.06em;
+  color: var(--amber-dim); text-transform: uppercase;
+}
+.archive-empty p strong { color: var(--red); }
+.archive-empty-cta {
+  display: inline-block; margin-top: 1.25rem;
+  font-family: 'VT323', monospace; font-size: 1rem; letter-spacing: 0.18em;
+  color: var(--amber); text-decoration: none; border: 2px solid var(--amber); padding: 0.5rem 1rem;
+}
+.archive-empty-cta:hover { background: var(--amber); color: var(--black); }
+
+/* ══════════════════════════════════════════════════════════════════
+   EXPEDIENTE CERRADO (carpeta manila) — tarjeta y solapa del visor
+   Referencia: image_a6adbb.jpg
+══════════════════════════════════════════════════════════════════ */
+.folio-folder {
+  position: relative; display: flex; flex-direction: column; gap: 0.5rem;
+  min-height: 250px; padding: 1.7rem 1.1rem 1rem;
+  text-decoration: none; cursor: pointer; color: #1a1208;
+  font-family: 'Share Tech Mono', monospace;
+  background:
+    radial-gradient(ellipse at 25% 12%, rgba(150,110,40,0.16), transparent 55%),
+    radial-gradient(ellipse at 88% 95%, rgba(90,65,20,0.22), transparent 50%),
+    repeating-linear-gradient(92deg, transparent 0 26px, rgba(80,60,20,0.045) 26px 27px),
+    linear-gradient(160deg, #d9c89b 0%, #c6b078 55%, #bca56c 100%);
+  border: 2px solid #11100a;
+  box-shadow: 5px 5px 0 #000;
+}
+.folio-folder:hover { border-color: #8a1414; }
+.folio-folder:active { transform: none; }
+
+/* pestaña de la carpeta */
+.ff-tab {
+  position: absolute; top: -14px; left: 22px; width: 96px; height: 14px;
+  background: #c6b078; border: 2px solid #11100a; border-bottom: none;
+}
+/* clip metálico (esquina derecha, como en la referencia) */
+.ff-clip {
+  position: absolute; top: -9px; right: 26px; width: 18px; height: 42px; z-index: 2;
+  border: 3px solid #6a6a6a; border-top-color: #aaa;
+  background: linear-gradient(180deg, #cfcfcf, #8a8a8a);
+}
+
+.ff-head {
+  font-family: 'VT323', monospace; font-size: 1.25rem; letter-spacing: 0.1em;
+  text-transform: uppercase; color: #1a1208;
+  border-bottom: 2px solid #1a1208; padding-bottom: 0.25rem;
+}
+.ff-restricted {
+  align-self: flex-start; font-size: 0.68rem; letter-spacing: 0.28em;
+  color: #8a1414; border: 2px solid #8a1414; padding: 0.08rem 0.4rem; transform: rotate(-2deg);
+}
+.ff-id {
+  align-self: flex-start; font-family: 'VT323', monospace; font-size: 1.6rem; letter-spacing: 0.12em;
+  color: #a01818; border: 3px solid #a01818; padding: 0.05rem 0.6rem; transform: rotate(-1deg);
+}
+.ff-title { font-size: 0.82rem; color: #2a2418; line-height: 1.35; letter-spacing: 0.03em; }
+.ff-title::before { content: 'RE: '; color: #6a5a2e; }
+
+/* sticker naranja digital con fecha + firma */
+.ff-sticker {
+  position: absolute; top: 14px; right: 14px; transform: rotate(4deg); z-index: 3;
+  background: #e8761c; color: #1a1208; border: 1px solid #a8500c;
+  font-size: 0.58rem; letter-spacing: 0.06em; line-height: 1.5; padding: 0.3rem 0.5rem;
+  display: flex; flex-direction: column; box-shadow: 2px 2px 0 rgba(0,0,0,0.35);
+}
+/* recuadro verde "CLOSED UNTIL..." */
+.ff-closed {
+  align-self: flex-start; margin-top: auto;
+  font-family: 'VT323', monospace; font-size: 0.95rem; letter-spacing: 0.1em;
+  color: #0a6a0a; border: 2px solid #0a6a0a; padding: 0.12rem 0.5rem; background: rgba(0,70,0,0.07);
+}
+.ff-action {
+  font-family: 'VT323', monospace; font-size: 0.95rem; letter-spacing: 0.1em; color: #1a1208;
+  border-top: 1px dashed #6a5a30; padding-top: 0.4rem;
+}
+.folio-folder:hover .ff-action { color: #8a1414; }
+
+.folio-folder.is-missing { filter: grayscale(0.6) brightness(0.82); }
+.folio-folder.is-missing .ff-closed { color: #a01818; border-color: #a01818; }
+
+/* ── La solapa del visor reutiliza estas inscripciones, en grande ── */
+.fv-flap .ff-head { font-size: 2.6rem; border: none; }
+.fv-flap .ff-restricted { font-size: 1rem; transform: rotate(-3deg); }
+.fv-flap .ff-sticker { top: 64px; right: 90px; font-size: 0.9rem; transform: rotate(5deg); }
+.fv-flap .ff-closed { position: absolute; bottom: 74px; margin-top: 0; font-size: 1.5rem; }
+
+/* ── Botón discreto "Agregar información al archivo" (en el visor) ── */
+.fv-addinfo {
+  position: fixed; bottom: 1rem; left: 1rem; z-index: 9650;
+  font-family: 'VT323', monospace; font-size: 1rem; letter-spacing: 0.08em;
+  color: var(--amber); text-decoration: none; background: var(--black);
+  border: 2px solid var(--line-hot); border-left: 4px solid var(--green); padding: 0.45rem 0.85rem;
+}
+.fv-addinfo[hidden] { display: none; }
+.fv-addinfo:hover { background: var(--green); color: var(--black); }
+
+/* ══════════════════════════════════════════
+   FOLDER DETAIL (legado)
+══════════════════════════════════════════ */
+.folder-wrap { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.back-btn {
+  font-family: 'VT323', monospace; font-size: 0.95rem; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--amber); text-decoration: none;
+  display: inline-flex; gap: 0.4rem; margin-bottom: 1.5rem;
+}
+.back-btn:hover { color: var(--green); }
+.folder-header {
+  background: var(--panel); border: 2px solid var(--line-hot);
+  padding: 1.5rem; margin-bottom: 1.5rem; position: relative;
+}
+.folder-header::after {
+  content: attr(data-classification);
+  position: absolute; top: 1rem; right: 1.2rem;
+  font-family: 'VT323', monospace; font-size: 1rem; letter-spacing: 0.15em;
+  color: var(--red); border: 2px solid var(--red); padding: 0.2rem 0.5rem;
+}
+.folder-header-title { font-family: 'VT323', monospace; font-size: 1.8rem; color: var(--bone); margin-bottom: 0.3rem; }
+.folder-header-date { font-family: 'Share Tech Mono', monospace; font-size: 0.85rem; color: var(--amber-dim); letter-spacing: 0.12em; margin-bottom: 0.8rem; }
+.folder-header-desc { font-size: 0.95rem; color: var(--amber-dim); line-height: 1.6; border-top: 1px solid var(--line); padding-top: 0.6rem; }
+.files-list { display: flex; flex-direction: column; gap: 1rem; }
+.file-card { background: var(--panel); border: 2px solid var(--line-hot); }
+.file-header {
+  display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem 1rem;
+  background: var(--panel-2); border-bottom: 1px solid var(--line-hot);
+}
+.file-icon { color: var(--amber); }
+.file-name { font-family: 'Share Tech Mono', monospace; font-size: 0.9rem; color: var(--amber); letter-spacing: 0.08em; flex: 1; }
+.file-type-badge { font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; padding: 0.15rem 0.45rem; border: 1px solid currentColor; }
+.badge-text { color: var(--green); }
+.badge-image { color: var(--green); }
+.badge-redacted { color: var(--red); }
+.file-body { padding: 1.25rem 1rem; }
+.file-content { font-family: 'Share Tech Mono', monospace; font-size: 0.9rem; line-height: 1.7; color: var(--bone); white-space: pre-wrap; word-break: break-word; }
+.redact-line { display: inline-block; background: var(--amber); color: transparent; user-select: none; padding: 0 0.15rem; }
+.file-note { margin-top: 1rem; padding: 0.5rem 0.7rem; background: var(--black); border-left: 3px solid var(--line-hot); font-size: 0.85rem; color: var(--amber-dim); line-height: 1.5; }
+.file-note::before { content: 'NOTA: '; color: var(--amber); }
+
+/* Compat: paper-effect ya no agrega textura suave */
+.paper-effect { background-image: none; }
+.scanlines::after { content: none; }
+
+/* ══════════════════════════════════════════════════════════════════
+   VISOR DE EXPEDIENTE — apertura mecánica de carpeta clasificada
+══════════════════════════════════════════════════════════════════ */
+.fv {
+  position: fixed; inset: 0; z-index: 9600;
+  /* La terminal de fondo permanece visible, solo desenfocada → sin negro súbito */
+  background: rgba(6,5,4,0.42);
+  -webkit-backdrop-filter: blur(2px);
+          backdrop-filter: blur(2px);
+  display: flex; flex-direction: column;
+  /* La capa flotante hace fade-in en vez de aparecer de golpe */
+  opacity: 0;
+  transition: opacity 0.22s ease;
+}
+.fv.is-visible { opacity: 1; }
+.fv[hidden] { display: none; }
+
+/* Barra superior de la terminal */
+.fv-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.5rem 0.8rem; border-bottom: 2px solid var(--line-hot); background: var(--panel);
+}
+.fv-close {
+  font-family: 'VT323', monospace; font-size: 1.05rem; letter-spacing: 0.08em;
+  color: var(--red); background: var(--black);
+  border: 2px solid var(--red); padding: 0.3rem 0.7rem; cursor: pointer;
+}
+.fv-close:hover { background: var(--red); color: var(--black); }
+.fv-title { font-family: 'VT323', monospace; font-size: 1.2rem; letter-spacing: 0.15em; color: var(--amber); }
+
+/* Escenario con perspectiva 3D */
+.fv-stage {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  overflow: auto; padding: 2rem; perspective: 1700px;
+}
+
+.fv-folder {
+  position: relative; width: 900px; height: 700px; flex: 0 0 auto;
+  transform: translate3d(0,0,0) scale(0.82);
+  transform-style: preserve-3d;
+  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+/* La carpeta cerrada "emerge" (escala) cuando la capa se hace visible */
+.fv:not(.is-visible) .fv-folder { transform: translate3d(0,0,0) scale(0.9); }
+
+/* will-change solo mientras anima (lo activa/desactiva el JS) → pre-render GPU */
+.fv-folder.is-armed { will-change: transform; }
+.fv-folder.is-armed .fv-flap,
+.fv-folder.is-armed .fv-interior { will-change: transform, opacity; }
+
+/* Interior (tablero) — oculto hasta abrir */
+.fv-interior {
+  position: absolute; inset: 0;
+  opacity: 0;
+  background: var(--black);
+  transition: opacity 0.25s ease 0.12s;
+}
+.fv-folder.is-open .fv-interior { opacity: 1; }
+
+/* Filtro de escáner de baja resolución sobre la evidencia (Parte 4).
+   Va en el contenedor padre: se acumula con el grayscale propio del canvas
+   y no es pisado por la regla .ws-canvas de workspace.css. */
+.fv-interior { filter: contrast(130%) brightness(90%); }
+
+/* Reportes y fichas en blanco y negro de alto contraste */
+.fv .pol-photo, .fv .id-photo { filter: grayscale(1) contrast(1.3) brightness(0.95); }
+
+/* Clips metálicos que sostienen las fotografías superpuestas */
+.fv .ev-polaroid { overflow: visible; }
+.fv .ev-polaroid::before {
+  content: ''; position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+  width: 16px; height: 32px; z-index: 3;
+  border: 3px solid #6e6e6e; border-top-color: #b8b8b8;
+  background: linear-gradient(180deg, #d2d2d2, #8c8c8c);
+}
+
+/* ── Solapa frontal (carpeta cerrada) ── */
+.fv-flap {
+  position: absolute; inset: 0; z-index: 5;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 22px, rgba(20,19,13,0.05) 22px 23px),
+    var(--paper);
+  border: 3px solid #000;
+  transform-origin: top center;
+  /* translate3d fuerza capa de composición (GPU); rotateX hace el pliegue */
+  transform: translate3d(0,0,0) rotateX(0deg);
+  /* Arranca rápido (tirón del agente) y desacelera al asentarse */
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1),
+              opacity 0.18s linear 0.34s;
+  backface-visibility: hidden;
+  box-shadow: inset 0 0 60px rgba(0,0,0,0.25);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.5rem;
+}
+/* clip metálico superior */
+.fv-flap .fv-clip {
+  position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+  width: 90px; height: 34px; background: var(--panel-2);
+  border: 3px solid #555; border-bottom: none;
+}
+.fv-flap .fv-clip::after {
+  content: ''; position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
+  width: 60px; height: 4px; background: #777;
+}
+/* código del expediente */
+.fv-code {
+  font-family: 'VT323', monospace; font-size: 2.4rem; letter-spacing: 0.2em;
+  color: #1a1208; border: 3px solid #1a1208; padding: 0.4rem 1.2rem; background: rgba(0,0,0,0.04);
+}
+/* sello CLASSIFIED rojo texturizado (matriz de puntos) */
+.fv-stamp {
+  font-family: 'VT323', monospace; font-size: 2.8rem; letter-spacing: 0.18em;
+  color: #b51111; border: 6px solid #b51111; padding: 0.3rem 1.4rem;
+  transform: rotate(-9deg); text-transform: uppercase;
+  -webkit-mask-image: radial-gradient(circle, #000 52%, transparent 56%);
+          mask-image: radial-gradient(circle, #000 52%, transparent 56%);
+  -webkit-mask-size: 4px 4px; mask-size: 4px 4px;
+}
+.fv-flap-foot {
+  position: absolute; bottom: 22px;
+  font-family: 'Share Tech Mono', monospace; font-size: 0.85rem;
+  letter-spacing: 0.2em; color: rgba(26,18,8,0.55);
+}
+.fv-flap-hint {
+  position: absolute; top: 26px;
+  font-family: 'Share Tech Mono', monospace; font-size: 0.8rem;
+  letter-spacing: 0.25em; color: rgba(26,18,8,0.0);
+}
+/* Al abrir: la solapa se pliega hacia atrás revelando la mesa abierta */
+.fv-folder.is-open .fv-flap {
+  transform: translate3d(0,0,0) rotateX(-165deg);
+  opacity: 0;
+}
+
+/* ── Aparición escalonada de las piezas (pop de fósforo, escalonado) ── */
+.fv-piece { opacity: 0; }
+.fv-piece.is-revealed { animation: fv-pop 0.22s steps(3) forwards; }
+@keyframes fv-pop {
+  0%   { opacity: 0; filter: brightness(3.5) contrast(0.5); }
+  60%  { opacity: 1; filter: brightness(1.6); }
+  100% { opacity: 1; filter: none; }
+}
+
+/* En el visor, las piezas no se arrastran */
+.fv .ev { cursor: default; }
+
+@media (max-width: 980px) {
+  .fv-folder { transform: scale(0.6); }
+}
+@media (max-width: 620px) {
+  .fv-folder { transform: scale(0.42); }
+  .fv-title { display: none; }
+}
+
+/* ══════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════ */
+@media (max-width: 600px) {
+  .login-card { padding: 1.5rem 1.25rem; }
+  .folders-grid { grid-template-columns: 1fr; }
+  .folder-header::after { display: none; }
+  .archive-topbar { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+}

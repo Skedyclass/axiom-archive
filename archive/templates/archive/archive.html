@@ -1,0 +1,98 @@
+{% extends 'archive/base.html' %}
+{% load static %}
+{% block title %}AXIOM — ARCHIVO CENTRAL{% endblock %}
+{% block content %}
+{# Reutilizamos los estilos de evidencia de la Mesa de Trabajo para el visor #}
+<link rel="stylesheet" href="{% static 'archive/css/workspace.css' %}">
+<div class="archive-wrap">
+
+  <div class="archive-topbar">
+    <div>
+      <div class="archive-logo">AXIOM // ARCHIVO</div>
+    </div>
+    <div class="archive-meta">
+      SESIÓN ACTIVA — <span class="access-time">--:--:--</span><br>
+      NIVEL DE ACCESO: AGENTE<br>
+      <a class="logout-btn" href="{% url 'logout' %}">CERRAR SESIÓN</a>
+    </div>
+  </div>
+
+  <div class="archive-intro">
+    <p>
+      Archivero local del agente — Axiom Solutions Group<br>
+      Los expedientes se compilan y almacenan en este terminal.<br>
+      Su divulgación constituye una violación al protocolo interno 7-Alpha.
+    </p>
+  </div>
+
+  <a class="workspace-cta" href="{% url 'workspace' %}">
+    <span class="workspace-cta-ico">🗃</span>
+    <span class="workspace-cta-text">
+      <strong>MESA DE TRABAJO</strong>
+      Inicia una nueva investigación — recortes, polaroids, hilos y sellos.
+    </span>
+    <span class="workspace-cta-go">ABRIR →</span>
+  </a>
+
+  <div class="agent-divider"><span>EXPEDIENTES DEL AGENTE</span></div>
+
+  {# IDs/títulos autorizados por el servidor; el JS cruza con localStorage #}
+  <script id="agent-folios" type="application/json">{{ agent_folios_json|safe }}</script>
+
+  <div class="folders-grid" id="agent-archive"></div>
+
+  <div class="archive-empty" id="archive-empty" hidden>
+    <div class="archive-empty-stamp">SIN REGISTROS</div>
+    <p>
+      <strong>CUIDADO:</strong> Archivero local del Agente vacío.<br>
+      Inicie una nueva investigación para compilar evidencias.
+    </p>
+    <a class="archive-empty-cta" href="{% url 'workspace' %}">▸ INICIAR INVESTIGACIÓN</a>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════
+     VISOR DE EXPEDIENTE — carpeta clasificada con apertura mecánica
+═════════════════════════════════════════════════════════════════ -->
+<div id="folder-viewer" class="fv" hidden>
+  <div class="fv-bar">
+    <button class="fv-close" id="fv-close">[ ESC_ CERRAR_EXPEDIENTE ]</button>
+    <span class="fv-title" id="fv-title">EXPED-XXXX</span>
+  </div>
+
+  <div class="fv-stage">
+    <div class="fv-folder is-closed" id="fv-folder">
+
+      <!-- Interior: cartón abierto en dos hojas con la evidencia (solo lectura) -->
+      <div class="fv-interior" id="fv-interior">
+        <div class="ws-canvas fv-canvas-leaf" id="fv-canvas" data-label="EVIDENCIA"></div>
+      </div>
+
+      <!-- Solapa frontal = carpeta cerrada (image_a6adbb) -->
+      <div class="fv-flap" id="fv-flap">
+        <div class="fv-clip"></div>
+        <div class="ff-head">MINISTRY OF DEFENCE</div>
+        <div class="ff-restricted">RESTRICTED</div>
+        <div class="fv-code" id="fv-code">EXPED-XXXX</div>
+        <div class="fv-stamp">CLASSIFIED</div>
+        <div class="ff-sticker" id="fv-sticker">FILED ██.██.██ · SIG ▓▓▓</div>
+        <div class="ff-closed">CLOSED UNTIL&nbsp;&nbsp;████</div>
+        <div class="fv-flap-foot">AXIOM // EXPEDIENTE CLASIFICADO — NIVEL AGENTE</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Botón discreto: desbloquear y ampliar (lleva a la mesa de trabajo) -->
+  <a class="fv-addinfo" id="fv-addinfo" hidden>+ AGREGAR INFORMACIÓN AL ARCHIVO</a>
+</div>
+
+<script>
+  window.AXIOM_FOLIO_VIEW_URL = "{% url 'folio_view' 'FOLIO-XXXX' %}";
+  window.AXIOM_FOLIO_EXPAND_URL = "{% url 'folio_expand' 'FOLIO-XXXX' %}";
+  window.AXIOM_IMG_BASE = "{% static 'archive/img/' %}";
+  window.AXIOM_AUDIO_BASE = "{% static 'archive/audio/' %}";
+</script>
+<script src="{% static 'archive/js/archive_list.js' %}"></script>
+{% endblock %}

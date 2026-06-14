@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2a2f33"/>
+      <stop offset="1" stop-color="#4a4035"/>
+    </linearGradient>
+    <filter id="g"><feGaussianBlur stdDeviation="0.4"/></filter>
+  </defs>
+  <rect width="400" height="400" fill="url(#sky)"/>
+  <rect y="250" width="400" height="150" fill="#1b1714"/>
+  <g filter="url(#g)" fill="#0f0d0b" opacity="0.92">
+    <rect x="40" y="120" width="120" height="180"/>
+    <rect x="170" y="80" width="90" height="220"/>
+    <rect x="270" y="140" width="100" height="160"/>
+  </g>
+  <g fill="#c9a23a" opacity="0.55">
+    <rect x="56" y="140" width="10" height="14"/><rect x="80" y="140" width="10" height="14"/>
+    <rect x="56" y="170" width="10" height="14"/><rect x="80" y="170" width="10" height="14"/>
+    <rect x="186" y="110" width="9" height="12"/><rect x="206" y="110" width="9" height="12"/>
+    <rect x="226" y="110" width="9" height="12"/><rect x="186" y="140" width="9" height="12"/>
+    <rect x="206" y="140" width="9" height="12"/><rect x="288" y="170" width="9" height="12"/>
+    <rect x="312" y="170" width="9" height="12"/></g>
+  <text x="200" y="380" font-family="monospace" font-size="13" fill="#8a8070"
+        text-anchor="middle" letter-spacing="3" opacity="0.7">AXIOM-HQ // 03:14</text>
+  <rect width="400" height="400" fill="#6b5a30" opacity="0.10"/>
+</svg>

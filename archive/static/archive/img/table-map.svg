@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="700" viewBox="0 0 900 700">
+  <!-- Fondo TRANSPARENTE: el cartón manila del .ws-canvas se ve debajo.
+       Solo dibujamos líneas tenues de "plano" para dar textura sin oscurecer. -->
+  <g stroke="rgba(40,35,20,0.10)" stroke-width="1" fill="none">
+    <g>
+      <line x1="0" y1="50" x2="900" y2="50"/><line x1="0" y1="120" x2="900" y2="120"/>
+      <line x1="0" y1="190" x2="900" y2="190"/><line x1="0" y1="260" x2="900" y2="260"/>
+      <line x1="0" y1="330" x2="900" y2="330"/><line x1="0" y1="400" x2="900" y2="400"/>
+      <line x1="0" y1="470" x2="900" y2="470"/><line x1="0" y1="540" x2="900" y2="540"/>
+      <line x1="0" y1="610" x2="900" y2="610"/>
+    </g>
+    <g>
+      <line x1="70" y1="0" x2="70" y2="700"/><line x1="160" y1="0" x2="160" y2="700"/>
+      <line x1="250" y1="0" x2="250" y2="700"/><line x1="340" y1="0" x2="340" y2="700"/>
+      <line x1="430" y1="0" x2="430" y2="700"/><line x1="520" y1="0" x2="520" y2="700"/>
+      <line x1="610" y1="0" x2="610" y2="700"/><line x1="700" y1="0" x2="700" y2="700"/>
+      <line x1="790" y1="0" x2="790" y2="700"/>
+    </g>
+  </g>
+  <g stroke="rgba(40,35,20,0.16)" stroke-width="1.5" fill="none">
+    <rect x="180" y="160" width="220" height="180"/>
+    <rect x="520" y="280" width="260" height="300"/>
+    <line x1="400" y1="250" x2="520" y2="350" stroke-dasharray="6 6"/>
+  </g>
+  <text x="450" y="650" font-family="monospace" font-size="20" fill="rgba(40,35,20,0.18)"
+        text-anchor="middle" letter-spacing="8">PLANO SUBSUELO — NIVEL B</text>
+</svg>

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#2b2622"/>
+  <g transform="rotate(-4 200 200)">
+    <rect x="70" y="50" width="260" height="320" fill="#e3dac2"/>
+    <rect x="70" y="50" width="260" height="320" fill="#c9bc96" opacity="0.25"/>
+    <g fill="#3a3324">
+      <rect x="95" y="80" width="150" height="12"/>
+      <rect x="95" y="110" width="210" height="6"/><rect x="95" y="124" width="210" height="6"/>
+      <rect x="95" y="138" width="180" height="6"/>
+    </g>
+    <g fill="#1a1208"><rect x="95" y="170" width="120" height="16"/>
+      <rect x="225" y="170" width="80" height="16"/></g>
+    <g fill="#3a3324">
+      <rect x="95" y="210" width="210" height="6"/><rect x="95" y="224" width="200" height="6"/>
+      <rect x="95" y="238" width="210" height="6"/><rect x="95" y="252" width="140" height="6"/></g>
+    <rect x="180" y="290" width="120" height="50" fill="none" stroke="#8b1a1a" stroke-width="3"
+          transform="rotate(-8 240 315)"/>
+    <text x="240" y="322" font-family="monospace" font-size="18" fill="#8b1a1a"
+          text-anchor="middle" transform="rotate(-8 240 315)" letter-spacing="1">SECRETO</text>
+  </g>
+</svg>

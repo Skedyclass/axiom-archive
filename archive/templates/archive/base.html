@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}AXIOM — ARCHIVO CLASIFICADO{% endblock %}</title>
+{% load static %}
+<link rel="stylesheet" href="{% static 'archive/css/main.css' %}">
+<meta name="robots" content="noindex, nofollow">
+</head>
+<body class="crt">
+
+  {# Contenido de la terminal (parpadeo de fósforo aplicado aquí) #}
+  <div class="crt__content">
+    {% block content %}{% endblock %}
+  </div>
+
+  {# Capas del monitor CRT — puramente decorativas, no capturan el cursor #}
+  <div class="crt__scanlines" aria-hidden="true"></div>
+  <div class="crt__vignette" aria-hidden="true"></div>
+  <div class="crt__glow" aria-hidden="true"></div>
+
+<script src="{% static 'archive/js/main.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+# Render Blueprint — despliegue automático de "Axiom Archive"
+# Importa este repo en Render (Blueprint) y crea el servicio web sin BD.
+services:
+  - type: web
+    name: axiom-archive
+    runtime: python
+    plan: free
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn axiom_project.wsgi:application"
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.8"
+      - key: SECRET_KEY
+        generateValue: true        # Render genera y conserva una clave estable
+      - key: DEBUG
+        value: "False"
+      - key: WEB_CONCURRENCY
+        value: "4"
+      - key: AXIOM_ACCESS_CODE
+        sync: false                # Defínelo tú en el panel (oculto)
