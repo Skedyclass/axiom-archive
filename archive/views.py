@@ -14,6 +14,17 @@ from django.views.decorators.http import require_POST
 # Los únicos folios son los que el agente crea en la Mesa de Trabajo.
 FOLDERS = {}
 
+# ─── Registro de agentes (cuentas ultra-secretas, definidas SOLO en código) ────
+# No hay registro público. Cada clave autoriza a un agente. Su ID se usa para
+# crear un espacio aislado en el localStorage del navegador:
+#   axiom_archive_1920_<AGENT_ID>
+# Edita/añade agentes aquí. Las claves son secretas: no las publiques.
+AGENT_REGISTRY = {
+    'AXIOM-1920-ALPHA': {'id': 'ALPHA', 'name': 'AGENTE ALPHA'},
+    'AXIOM-1920-BETA':  {'id': 'BETA',  'name': 'AGENTE BETA'},
+    'AXIOM-1920-OMEGA': {'id': 'OMEGA', 'name': 'AGENTE OMEGA'},
+}
+
 
 # ─── Views ───────────────────────────────────────────────────────────────────
 
@@ -30,11 +41,14 @@ def login_view(request):
     error = None
     if request.method == 'POST':
         code = request.POST.get('code', '').strip().upper()
-        if code == settings.ACCESS_CODE.upper():
+        agent = AGENT_REGISTRY.get(code)
+        if agent:
             request.session['authenticated'] = True
+            request.session['agent_id'] = agent['id']
+            request.session['agent_name'] = agent['name']
             return redirect('archive')
         else:
-            error = 'CÓDIGO INCORRECTO — ACCESO DENEGADO'
+            error = 'CLAVE NO RECONOCIDA — RELÉS BLOQUEADOS'
     return render(request, 'archive/login.html', {'error': error})
 
 

@@ -21,8 +21,10 @@
   const CAN_ADD = (MODE === 'create' || MODE === 'expand');
   const CSRF = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-  const ARCHIVE_KEY = 'axiom_agent_archive';   // todos los folios pesados
-  const DRAFT_KEY   = 'axiom_workspace_draft';  // borrador de "create"
+  // Espacio aislado por agente (cuenta ultra-secreta de 1920).
+  const AGENT = window.AXIOM_AGENT_ID || 'GUEST';
+  const ARCHIVE_KEY = 'axiom_archive_1920_' + AGENT;   // todos los folios pesados
+  const DRAFT_KEY   = 'axiom_workspace_draft_' + AGENT;  // borrador de "create"
 
   // ── Estado ────────────────────────────────────────────────────────
   let state = { v: 1, title: CFG.title || 'EXPEDIENTE', pages: [], active: 0 };
@@ -536,6 +538,8 @@
   async function archiveFolio() {
     const title = titleInput.value.trim() || 'EXPEDIENTE SIN TÍTULO';
     state.title = title;
+    // Ciclo mecánico obligatorio antes de grabar en los discos.
+    if (window.AxiomLoader) await window.AxiomLoader.run({ label: '[ GRABANDO EN DISCOS MECÁNICOS... ]' });
     try {
       // 1) Registro LIGERO en el servidor (solo id + título)
       const res = await fetch(CFG.saveUrl, {

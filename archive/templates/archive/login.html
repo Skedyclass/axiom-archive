@@ -19,22 +19,22 @@
 
     <form method="POST">
       {% csrf_token %}
-      <label class="code-label">Código de acceso</label>
+      <label class="code-label">Clave de agente</label>
       <input
         class="code-input"
         type="text"
         name="code"
-        maxlength="10"
+        maxlength="24"
         autocomplete="off"
         autocorrect="off"
         spellcheck="false"
-        placeholder="XXXXX-XXXX"
+        placeholder="AXIOM-1920-XXXXX"
         autofocus
       >
       {% if error %}
         <div class="login-error">⚠ {{ error }}</div>
       {% endif %}
-      <button class="login-btn" type="submit">INGRESAR AL SISTEMA</button>
+      <button class="login-btn" type="submit">ACCIONAR RELÉS DE ACCESO</button>
     </form>
 
     <div class="login-footer">

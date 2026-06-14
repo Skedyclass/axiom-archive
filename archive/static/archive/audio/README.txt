@@ -6,6 +6,7 @@ Coloca aquí dos archivos de sonido para la apertura/cierre del expediente:
   open_folder.mp3    → papel rascando / carpeta abriéndose (~0.4–0.6 s)
   close_folder.mp3   → clic seco de plástico/metal del clip (~0.1–0.2 s)
   teletype_clack.mp3 → golpe metálico seco de teletipo (~0.05 s, se repite por carácter)
+  relay_clack.mp3    → golpe de relé electromecánico (~0.1 s, suena en las cargas)
 
 El reproductor está en static/archive/js/main.js (window.AxiomSound).
 

@@ -224,8 +224,10 @@
 .ev-polaroid .pol-photo {
   width: 100%; height: 170px; background: #555 center/cover no-repeat;
   display: flex; align-items: center; justify-content: center;
-  filter: grayscale(0.85) contrast(1.1);
+  /* Daguerrotipo: B/N puro, contraste destructivo, bordes quemados */
+  filter: grayscale(1) contrast(2.1) brightness(0.9);
   border: 1px solid var(--scan-edge);
+  box-shadow: inset 0 0 20px 5px rgba(0,0,0,0.78);
 }
 .ev-polaroid .pol-photo.is-empty::after {
   content: '[ SIN IMAGEN ]'; font-family: 'Share Tech Mono', monospace;
@@ -285,7 +287,8 @@
 .ev-idcard .id-photo {
   width: 62px; height: 72px; flex: 0 0 auto;
   background: #444 center/cover no-repeat; border: 2px solid var(--scan-edge);
-  filter: grayscale(1) contrast(1.2);
+  filter: grayscale(1) contrast(2.2) brightness(0.88);
+  box-shadow: inset 0 0 14px 4px rgba(0,0,0,0.78);
 }
 .ev-idcard .id-fields { font-family: 'Share Tech Mono', monospace; font-size: 0.72rem; line-height: 1.6; color: var(--scan-ink); }
 .ev-idcard .id-fields .id-name { font-family: 'VT323', monospace; font-size: 1rem; display: block; margin-bottom: 0.15rem; }

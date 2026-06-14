@@ -15,13 +15,13 @@
   --green-dim:  #119a11;
   --bone:       #e7e3d2;
 
-  /* Estructura industrial */
-  --black:      #000000;
-  --graphite:   #0c0d0c;
-  --panel:      #121312;
-  --panel-2:    #1a1b1a;
-  --line:       #2c2e2c;
-  --line-hot:   #3f463f;
+  /* Estructura industrial — metal oxidado / verde militar gastado (1920) */
+  --black:      #0a0905;
+  --graphite:   #12140e;    /* aceite oscuro oliva */
+  --panel:      #16190f;
+  --panel-2:    #1d2014;
+  --line:       #34301f;    /* óxido apagado */
+  --line-hot:   #4a4327;    /* latón sucio */
 
   /* Físico escaneado (papel plano, baja resolución) */
   --paper:        #c7c2ad;
@@ -59,26 +59,35 @@ body {
   text-rendering: optimizeSpeed;
 }
 
-/* Fondo grafito con trama industrial tenue */
+/* Fondo de metal oxidado + lente óptica sucia (desenfoque sutil) */
 .crt__content {
   position: relative;
   z-index: 1;
   min-height: 100vh;
   background:
     repeating-linear-gradient(0deg, transparent 0 3px, rgba(255,176,0,0.012) 3px 4px),
+    radial-gradient(ellipse at 30% 20%, rgba(70,60,30,0.10), transparent 60%),
+    radial-gradient(ellipse at 80% 90%, rgba(40,55,30,0.12), transparent 55%),
     var(--graphite);
-  /* Parpadeo de fósforo: 98% → 100%, casi imperceptible */
-  animation: crt-flicker 5.2s steps(60) infinite;
+  /* Lente de cristal sucio del aparato de 1920 */
+  filter: blur(0.4px);
+  /* Parpadeo brusco de lámpara de arco eléctrico: 85% → 105% */
+  animation: arc-flicker 2.4s steps(28) infinite;
 }
 
-@keyframes crt-flicker {
-  0%, 100% { opacity: 1; }
-  3%   { opacity: 0.985; }
-  6%   { opacity: 1; }
-  47%  { opacity: 0.99; }
-  48%  { opacity: 0.97; }
-  49%  { opacity: 1; }
-  82%  { opacity: 0.992; }
+@keyframes arc-flicker {
+  0%   { opacity: 1.0; }
+  8%   { opacity: 0.88; }
+  10%  { opacity: 1.04; }
+  18%  { opacity: 0.94; }
+  26%  { opacity: 1.0; }
+  44%  { opacity: 0.86; }
+  46%  { opacity: 1.05; }
+  55%  { opacity: 0.95; }
+  70%  { opacity: 1.0; }
+  82%  { opacity: 0.9; }
+  84%  { opacity: 1.03; }
+  100% { opacity: 1.0; }
 }
 
 /* ── CAPA 1: Scanlines + sangrado de fósforo ── */
@@ -768,3 +777,55 @@ body {
   image-rendering: pixelated;
 }
 .axiom-scope.is-on { transform: translateX(-50%) translateY(0); }
+
+/* ══════════════════════════════════════════════════════════════════
+   APARATO DE 1920 — hollín, cargador mecánico, salto de rollo
+══════════════════════════════════════════════════════════════════ */
+
+/* Manchas de hollín / grasa en el cristal */
+.crt__soot {
+  position: fixed; inset: 0; z-index: 99989; pointer-events: none;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(0,0,0,0.55) 0 2.5%, transparent 9%),
+    radial-gradient(circle at 88% 12%, rgba(0,0,0,0.5) 0 2%, transparent 8%),
+    radial-gradient(circle at 72% 82%, rgba(0,0,0,0.6) 0 3.5%, transparent 12%),
+    radial-gradient(circle at 28% 74%, rgba(0,0,0,0.45) 0 3%, transparent 10%),
+    radial-gradient(ellipse at 50% 50%, transparent 58%, rgba(15,12,4,0.4) 100%);
+  mix-blend-mode: multiply; opacity: 0.85;
+}
+
+/* Cargador electromecánico (pantalla de carga obligatoria) */
+.ax-loader {
+  position: fixed; inset: 0; z-index: 99995;
+  background: rgba(6,5,3,0.93);
+  display: flex; align-items: center; justify-content: center; padding: 1.5rem;
+}
+.ax-loader[hidden] { display: none; }
+.ax-loader-box {
+  background: #0c0b07; border: 3px solid var(--line-hot);
+  box-shadow: 0 0 0 2px #000, 0 0 34px rgba(0,0,0,0.7), inset 0 0 24px rgba(0,0,0,0.6);
+  padding: 1.4rem 1.6rem; min-width: 320px; max-width: 88vw;
+}
+.ax-loader-label {
+  font-family: 'VT323', monospace; font-size: 1.35rem; letter-spacing: 0.06em;
+  color: var(--amber); text-shadow: 0 0 5px rgba(255,176,0,0.5); margin-bottom: 0.85rem;
+  animation: arc-flicker 1.6s steps(20) infinite;
+}
+.ax-loader-bar { height: 18px; border: 2px solid var(--line-hot); background: #060503; padding: 2px; }
+.ax-loader-bar span {
+  display: block; height: 100%; width: 0%;
+  background: repeating-linear-gradient(90deg, var(--amber) 0 8px, #000 8px 12px);
+}
+.ax-loader-sub {
+  margin-top: 0.7rem; font-family: 'Share Tech Mono', monospace; font-size: 0.68rem;
+  letter-spacing: 0.16em; color: var(--amber-dim);
+}
+
+/* Salto/parpadeo del rollo de papel al pasar de página (motor síncrono) */
+.fv-jump { animation: fv-jump-kick 0.32s steps(3); }
+@keyframes fv-jump-kick {
+  0%   { transform: translateY(-22px); filter: brightness(2.3); }
+  40%  { transform: translateY(7px);  filter: brightness(0.45); }
+  70%  { transform: translateY(-3px); filter: brightness(1.4); }
+  100% { transform: translateY(0);    filter: none; }
+}

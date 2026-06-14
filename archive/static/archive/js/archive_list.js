@@ -9,7 +9,8 @@
 (() => {
   'use strict';
 
-  const ARCHIVE_KEY = 'axiom_agent_archive';
+  // Espacio aislado por agente (cuenta ultra-secreta de 1920).
+  const ARCHIVE_KEY = 'axiom_archive_1920_' + (window.AXIOM_AGENT_ID || 'GUEST');
   const IMG_BASE = window.AXIOM_IMG_BASE || '/static/archive/img/';
   const grid  = document.getElementById('agent-archive');
   const empty = document.getElementById('archive-empty');
@@ -58,12 +59,13 @@
       // al agente atascado: navegamos a la página del expediente como respaldo.
       card.addEventListener('click', (e) => {
         e.preventDefault();
-        try {
-          openFolder(folio, local);
-        } catch (err) {
-          console.error('[AXIOM] El visor falló, navegando al expediente:', err);
-          window.location.href = card.href;
-        }
+        const run = () => {
+          try { openFolder(folio, local); }
+          catch (err) { console.error('[AXIOM] El visor falló, navegando:', err); window.location.href = card.href; }
+        };
+        // Carga mecánica antes de montar la bobina del expediente.
+        if (window.AxiomLoader) window.AxiomLoader.run({ label: '[ MONTANDO BOBINA DEL EXPEDIENTE... ]' }).then(run);
+        else run();
       });
       grid.appendChild(card);
     });
@@ -236,8 +238,14 @@
     const target = view.pages[i];
     if (isRestricted(target) && !view.unlocked.has(i)) { promptKey(i); return; }
     hideKeybox();
-    view.index = i;
-    renderPage(true);
+    const apply = () => { view.index = i; renderPage(true); pageJump(); };
+    // Motor síncrono: carga mecánica + salto/parpadeo del rollo de papel.
+    if (window.AxiomLoader) window.AxiomLoader.run({ label: '[ ENGRANANDO DISCOS — GIRANDO ROLLO... ]' }).then(apply);
+    else apply();
+  }
+  function pageJump() {
+    const st = viewer.querySelector('.fv-stage'); if (!st) return;
+    st.classList.remove('fv-jump'); void st.offsetWidth; st.classList.add('fv-jump');
   }
 
   // ── página de clasificación restringida ──

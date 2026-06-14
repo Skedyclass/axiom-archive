@@ -9,13 +9,15 @@
 ══════════════════════════════════════════════════════════════════ */
 window.AxiomSound = (function () {
   const BASE = window.AXIOM_AUDIO_BASE || '/static/archive/audio/';
-  const FILES = { open: 'open_folder.mp3', close: 'close_folder.mp3', type: 'teletype_clack.mp3' };
-  const VOL   = { open: 0.55, close: 0.6, type: 0.3 };
+  const FILES = { open: 'open_folder.mp3', close: 'close_folder.mp3',
+                  type: 'teletype_clack.mp3', relay: 'relay_clack.mp3' };
+  const VOL   = { open: 0.55, close: 0.6, type: 0.3, relay: 0.5 };
   // Parámetros del respaldo sintetizado por sonido.
   const SYNTH = {
     open:  { dur: 0.45, freq: 1700, q: 0.6, gain: 0.5, decay: 1.6, rough: true },
     close: { dur: 0.12, freq: 3200, q: 2.2, gain: 0.7, decay: 7 },
     type:  { dur: 0.045, freq: 2600, q: 3.5, gain: 0.35, decay: 9 },  // golpe seco de teletipo
+    relay: { dur: 0.11, freq: 1400, q: 1.4, gain: 0.6, decay: 6 },    // golpe metálico de relé
   };
   const cache = {};
   let actx = null;
@@ -140,12 +142,65 @@ window.AxiomScope = (function () {
   return { start, stop, toggle, isRunning: () => running };
 })();
 
+/* ══════════════════════════════════════════════════════════════════
+   CARGADOR ELECTROMECÁNICO — congela la máquina con relés y tubos.
+   Uso:  await AxiomLoader.run({ label, ms })   // devuelve Promise
+   Se usa en acciones con peso (login, abrir, guardar, pasar página).
+══════════════════════════════════════════════════════════════════ */
+window.AxiomLoader = (function () {
+  const LABELS = [
+    '[ PROCESANDO RELEVADORES... ]',
+    '[ ENGRANANDO DISCOS MECÁNICOS... ]',
+    '[ CALENTANDO TUBOS DE VACÍO... ]',
+    '[ ALINEANDO ENGRANAJES DE LATÓN... ]',
+  ];
+  let clackTimer, barTimer, hideTimer;
+
+  function run(opts) {
+    opts = opts || {};
+    const overlay = document.getElementById('ax-loader');
+    if (!overlay) return Promise.resolve();      // sin overlay: no bloquea
+    const labelEl = document.getElementById('ax-loader-label');
+    const fillEl = document.getElementById('ax-loader-fill');
+    const ms = opts.ms || (1700 + Math.floor(Math.random() * 700));   // ~1.7–2.4 s
+    labelEl.textContent = opts.label || LABELS[Math.floor(Math.random() * LABELS.length)];
+
+    clearInterval(clackTimer); clearInterval(barTimer); clearTimeout(hideTimer);
+    overlay.hidden = false;
+    // forzar reflow para reiniciar la barra
+    fillEl.style.transition = 'none'; fillEl.style.width = '0%'; void fillEl.offsetWidth;
+    fillEl.style.transition = 'width 0.18s steps(4)';
+
+    // sonido de relés repetido durante el ciclo
+    if (window.AxiomSound) {
+      window.AxiomSound.play('relay');
+      clackTimer = setInterval(() => window.AxiomSound.play('relay'), 360);
+    }
+    // barra tosca a saltos
+    let pct = 0;
+    barTimer = setInterval(() => {
+      pct = Math.min(100, pct + (8 + Math.random() * 22));
+      fillEl.style.width = pct + '%';
+    }, Math.max(120, ms / 9));
+
+    return new Promise((resolve) => {
+      hideTimer = setTimeout(() => {
+        clearInterval(clackTimer); clearInterval(barTimer);
+        fillEl.style.width = '100%';
+        overlay.hidden = true;
+        resolve();
+      }, ms);
+    });
+  }
+  return { run };
+})();
+
 document.addEventListener('DOMContentLoaded', () => {
 
   // ── Efecto de escritura en el placeholder del login
   const input = document.querySelector('.code-input');
   if (input) {
-    const hints = ['_ _ _ _ - _ _ _ _', 'INGRESE CÓDIGO', ''];
+    const hints = ['AXIOM-1920-_____', 'INGRESE CLAVE DE AGENTE', ''];
     let h = 0;
     setInterval(() => {
       if (document.activeElement !== input) {
@@ -154,11 +209,19 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }, 2200);
 
-    // Formato automático: agrega guión en posición 5
+    // Solo mayúsculas; se permiten letras, números y guiones (claves largas).
     input.addEventListener('input', (e) => {
-      let val = e.target.value.replace(/[^A-Z0-9]/gi, '').toUpperCase();
-      if (val.length > 5) val = val.slice(0, 5) + '-' + val.slice(5, 9);
-      e.target.value = val;
+      e.target.value = e.target.value.replace(/[^A-Za-z0-9-]/g, '').toUpperCase();
+    });
+
+    // Accionar relés: el envío del login pasa por el cargador mecánico.
+    const form = input.closest('form');
+    if (form) form.addEventListener('submit', (e) => {
+      if (form.dataset.relayed) return;        // segunda pasada: envío real
+      e.preventDefault();
+      const go = () => { form.dataset.relayed = '1'; form.submit(); };
+      if (window.AxiomLoader) window.AxiomLoader.run({ label: '[ ACCIONANDO RELÉS DE ACCESO... ]' }).then(go);
+      else go();
     });
   }
 
