@@ -62,7 +62,8 @@
   <div class="ws-pages-bar">
     <div class="ws-page-tabs" id="ws-page-tabs"></div>
     <button class="ws-page-add" id="ws-add-page" data-tools>+ AGREGAR PÁGINA</button>
-    <span class="ws-hint" id="ws-hint">Arrastra • Doble clic para editar texto • clic = traer al frente</span>
+    <button class="ws-page-add" id="ws-restrict" data-tools>🔒 RESTRINGIR PÁG</button>
+    <span class="ws-hint" id="ws-hint">Arrastra • Doble clic edita texto • clic derecho = menú rápido</span>
   </div>
 
   <!-- ── Lienzo (carpeta manila) ── -->
@@ -82,6 +83,13 @@
   <button data-act="rotL"   title="Rotar izquierda">↺</button>
   <button data-act="rotR"   title="Rotar derecha">↻</button>
   <button data-act="delete" title="Eliminar" class="ws-ctx--danger">✕</button>
+</div>
+
+<!-- ── Menú de clic derecho (rústico, monocromático) ── -->
+<div class="ws-rmenu" id="ws-rmenu" hidden>
+  <button data-ract="front">[ TRAER_AL_FRENTE ]</button>
+  <button data-ract="rot90">[ ROTAR_90º ]</button>
+  <button data-ract="del" class="ws-rmenu--danger">[ BORRAR ]</button>
 </div>
 
 <!-- ── Modal: GUARDAR EN EL ARCHIVERO ── -->

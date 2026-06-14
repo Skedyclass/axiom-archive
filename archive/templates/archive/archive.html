@@ -58,7 +58,10 @@
 <div id="folder-viewer" class="fv" hidden>
   <div class="fv-bar">
     <button class="fv-close" id="fv-close">[ ESC_ CERRAR_EXPEDIENTE ]</button>
-    <span class="fv-title" id="fv-title">EXPED-XXXX</span>
+    <div class="fv-bar-right">
+      <button class="fv-uv" id="fv-uv">[ LUZ_UV: OFF ]</button>
+      <span class="fv-title" id="fv-title">EXPED-XXXX</span>
+    </div>
   </div>
 
   <div class="fv-stage">
@@ -82,6 +85,20 @@
       </div>
 
     </div>
+  </div>
+
+  <!-- Paginación del expediente (pestañas de cartón + flechas de terminal) -->
+  <div class="fv-pager" id="fv-pager" hidden>
+    <button class="fv-pg-btn" id="fv-prev">[ &larr; ANTERIOR ]</button>
+    <div class="fv-tabs" id="fv-tabs"></div>
+    <button class="fv-pg-btn" id="fv-next">[ SIGUIENTE &rarr; ]</button>
+  </div>
+
+  <!-- Consola de clave para páginas de clasificación restringida -->
+  <div class="fv-keybox" id="fv-keybox" hidden>
+    <span class="fv-keybox-msg" id="fv-keybox-msg">[ ACCESO_RESTRINGIDO: INGRESE_CLAVE_EN_CONSOLA ]</span>
+    <input type="text" class="fv-keybox-input" id="fv-keybox-input" autocomplete="off" spellcheck="false" placeholder="CLAVE&gt;">
+    <button class="fv-keybox-go" id="fv-keybox-go">[ DESCIFRAR ]</button>
   </div>
 
   <!-- Botón discreto: desbloquear y ampliar (lleva a la mesa de trabajo) -->

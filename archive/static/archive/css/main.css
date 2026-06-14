@@ -556,15 +556,17 @@ body {
     repeating-linear-gradient(0deg, transparent 0 22px, rgba(20,19,13,0.05) 22px 23px),
     var(--paper);
   border: 3px solid #000;
-  transform-origin: top center;
-  /* translate3d fuerza capa de composición (GPU); rotateX hace el pliegue */
-  transform: translate3d(0,0,0) rotateX(0deg);
-  /* Arranca rápido (tirón del agente) y desacelera al asentarse */
-  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1),
-              opacity 0.18s linear 0.34s;
-  backface-visibility: hidden;
+  /* Deslizamiento lateral tipo carpeta-libro (GPU, sin rotaciones 3D pesadas) */
+  transform: translate3d(0, 0, 0);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.2s linear 0.18s;
   box-shadow: inset 0 0 60px rgba(0,0,0,0.25);
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.5rem;
+}
+/* Costura central: sugiere las dos mitades (portada / contraportada) */
+.fv-flap::after {
+  content: ''; position: absolute; top: 0; bottom: 0; left: 50%;
+  width: 2px; background: rgba(0,0,0,0.28); pointer-events: none;
 }
 /* clip metálico superior */
 .fv-flap .fv-clip {
@@ -600,9 +602,9 @@ body {
   font-family: 'Share Tech Mono', monospace; font-size: 0.8rem;
   letter-spacing: 0.25em; color: rgba(26,18,8,0.0);
 }
-/* Al abrir: la solapa se pliega hacia atrás revelando la mesa abierta */
+/* Al abrir: la portada se desliza hacia la derecha y revela la mesa al instante */
 .fv-folder.is-open .fv-flap {
-  transform: translate3d(0,0,0) rotateX(-165deg);
+  transform: translate3d(105%, 0, 0);
   opacity: 0;
 }
 
@@ -617,6 +619,94 @@ body {
 
 /* En el visor, las piezas no se arrastran */
 .fv .ev { cursor: default; }
+
+/* ── Barra superior: botón de luz UV ── */
+.fv-bar-right { display: flex; align-items: center; gap: 0.8rem; }
+.fv-uv {
+  font-family: 'VT323', monospace; font-size: 1rem; letter-spacing: 0.06em;
+  color: #6ea8ff; background: var(--black); border: 2px solid #2a4a8a;
+  padding: 0.3rem 0.7rem; cursor: pointer;
+}
+.fv-uv:hover { background: #2a4a8a; color: #cfe0ff; }
+.fv-uv.is-on { background: #2a4a8a; color: #cfe0ff; box-shadow: 0 0 12px rgba(110,168,255,0.55); }
+
+/* ── Paginación (flechas de terminal + pestañas de cartón) ── */
+.fv-pager {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 9655;
+  display: flex; align-items: flex-end; justify-content: center; gap: 1rem;
+  padding: 0.5rem 1rem 0.6rem;
+  background: linear-gradient(0deg, rgba(0,0,0,0.9), transparent);
+}
+.fv-pager[hidden] { display: none; }
+.fv-pg-btn {
+  font-family: 'VT323', monospace; font-size: 1.05rem; letter-spacing: 0.06em;
+  color: var(--amber); background: var(--black); border: 2px solid var(--line-hot);
+  padding: 0.35rem 0.8rem; cursor: pointer; white-space: nowrap;
+}
+.fv-pg-btn:hover:not(:disabled) { background: var(--amber); color: var(--black); }
+.fv-pg-btn:disabled { opacity: 0.3; cursor: default; }
+.fv-tabs { display: flex; gap: 0.25rem; flex-wrap: wrap; justify-content: center; }
+.fv-tab {
+  font-family: 'Share Tech Mono', monospace; font-size: 0.85rem; letter-spacing: 0.05em;
+  color: var(--amber-dim); background: var(--panel);
+  border: 2px solid var(--line-hot); border-bottom: none;
+  padding: 0.3rem 0.65rem; cursor: pointer;
+}
+.fv-tab:hover { color: var(--amber); }
+.fv-tab.is-active { color: var(--black); background: var(--amber); border-color: var(--amber); }
+.fv-tab.is-locked { color: #d24a4a; border-color: #6a1a1a; }
+.fv-tab.is-locked::after { content: ' [B]'; }
+
+/* Parpadeo rojo de acceso restringido */
+.fv-pager.is-restricted .fv-pg-btn {
+  animation: fv-restrict 0.5s steps(2, start) infinite;
+  border-color: #ff0000; color: #ff0000;
+}
+@keyframes fv-restrict { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+
+/* Consola de clave (página restringida) */
+.fv-keybox {
+  position: fixed; left: 50%; bottom: 66px; transform: translateX(-50%); z-index: 9665;
+  display: flex; align-items: center; gap: 0.5rem;
+  background: var(--black); border: 2px solid #ff0000; padding: 0.5rem 0.7rem;
+}
+.fv-keybox[hidden] { display: none; }
+.fv-keybox-msg {
+  font-family: 'VT323', monospace; font-size: 0.95rem; color: #ff0000; letter-spacing: 0.05em;
+  animation: fv-restrict 0.6s steps(2, start) infinite;
+}
+.fv-keybox-input {
+  font-family: 'Share Tech Mono', monospace; font-size: 0.9rem;
+  background: #060606; color: var(--green); border: 1px solid var(--line-hot);
+  padding: 0.3rem 0.5rem; outline: none; width: 130px; text-transform: uppercase;
+}
+.fv-keybox-go {
+  font-family: 'VT323', monospace; font-size: 0.95rem; color: var(--green);
+  background: var(--black); border: 2px solid var(--green-dim); padding: 0.3rem 0.6rem; cursor: pointer;
+}
+.fv-keybox-go:hover { background: var(--green); color: var(--black); }
+
+/* Transición de hojas al paginar */
+.fv-page-anim { animation: fv-page-slide 0.25s ease; }
+@keyframes fv-page-slide { 0% { opacity: 0; transform: translateX(36px); } 100% { opacity: 1; transform: translateX(0); } }
+
+/* ── MODO LUZ UV ── */
+.fv.uv-on .fv-interior { filter: invert(1) hue-rotate(175deg) brightness(1.15) contrast(1.25); }
+.fv.uv-on .fv-stage::after {
+  content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: radial-gradient(circle at 50% 45%, rgba(90,120,255,0.22), rgba(20,0,60,0.45) 70%);
+  mix-blend-mode: screen;
+}
+.fv-stage { position: relative; }   /* ancla para el halo UV */
+
+/* Marcas ocultas: invisibles salvo bajo UV */
+.uv-hidden { opacity: 0; transition: opacity 0.2s; }
+.fv.uv-on .uv-hidden { opacity: 1; }
+.uv-mark {
+  position: absolute; left: 40px; top: 34px; z-index: 900;
+  font-family: 'Share Tech Mono', monospace; font-size: 0.8rem; letter-spacing: 0.08em;
+  color: #6effc8; text-shadow: 0 0 6px rgba(110,255,200,0.7);
+}
 
 @media (max-width: 980px) {
   .fv-folder { transform: scale(0.6); }

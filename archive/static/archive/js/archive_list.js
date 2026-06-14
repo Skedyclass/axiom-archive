@@ -122,100 +122,12 @@
   let revealTimers = [];
   function clearTimers() { revealTimers.forEach(clearTimeout); revealTimers = []; }
 
-  function renderBoard(canvas, board) {
-    canvas.innerHTML = '';
-    const page = (board && board.pages && board.pages[Math.min(board.active || 0, board.pages.length - 1)]) || null;
-
-    // SVG de hilos (se dibuja al final)
-    const svg = document.createElementNS(SVGNS, 'svg');
-    svg.setAttribute('class', 'ws-links');
-    svg.setAttribute('width', '900'); svg.setAttribute('height', '700');
-    canvas.appendChild(svg);
-
-    if (!page) {
-      const note = document.createElement('div');
-      note.className = 'ev ev-note note-cipher fv-piece is-revealed';
-      note.style.left = '300px'; note.style.top = '280px';
-      note.innerHTML = `<div class="note-text">EVIDENCIA NO DISPONIBLE\nEN ESTE TERMINAL.</div>`;
-      canvas.appendChild(note);
-      return { pieces: [], links: [], svg, canvas };
-    }
-
-    const pieces = page.items.slice().sort((a, b) => a.z - b.z).map((item) => {
-      const el = buildPiece(item);
-      canvas.appendChild(el);
-      return { el, item };
-    });
-    return { pieces, links: page.links || [], svg, canvas };
-  }
-
-  // ════════════════════════════════════════════════════════════════
-  //  VISOR — apertura / cierre
-  // ════════════════════════════════════════════════════════════════
-  const viewer = document.getElementById('folder-viewer');
-  const folder = document.getElementById('fv-folder');
-  const canvas = document.getElementById('fv-canvas');
-  const addInfo = document.getElementById('fv-addinfo');
-  const sticker = document.getElementById('fv-sticker');
-  let boardCtx = null;
-  let isOpen = false;
-
-  function openFolder(folio, local) {
-    document.getElementById('fv-title').textContent = folio.id;
-    document.getElementById('fv-code').textContent = folio.id;
-    canvas.dataset.label = (folio.title || 'EVIDENCIA').toUpperCase();
-    if (sticker) sticker.innerHTML = `FILED ${esc(folio.date || '██.██.██')} · SIG AGT-${esc((folio.id.match(/\d+/) || ['00'])[0])}`;
-
-    // El botón "Agregar información" lleva a la mesa de trabajo en modo AMPLIAR.
-    addInfo.href = (window.AXIOM_FOLIO_EXPAND_URL || '#').replace('FOLIO-XXXX', folio.id);
-    addInfo.hidden = true;
-
-    boardCtx = renderBoard(canvas, local && local.board);
-
-    // Sonido diegético: papel/carpeta abriéndose (al clic = gesto de usuario)
-    sound('open');
-
-    viewer.hidden = false;
-    folder.classList.add('is-closed', 'is-armed');   // is-armed → will-change (pre-render GPU)
-    folder.classList.remove('is-open');
-    isOpen = true;
-
-    // Dos rAF: 1) la capa hace fade-in y la carpeta emerge; 2) la solapa se pliega.
-    void folder.offsetWidth;                          // reflow para fijar el estado cerrado
-    requestAnimationFrame(() => {
-      viewer.classList.add('is-visible');
-      requestAnimationFrame(() => {
-        folder.classList.remove('is-closed');
-        folder.classList.add('is-open');
-      });
-    });
-
-    // Tras el pliegue (0.5 s) revelamos las piezas; luego liberamos will-change.
-    clearTimers();
-    revealTimers.push(setTimeout(() => revealPieces(boardCtx), 540));
-    revealTimers.push(setTimeout(() => { addInfo.hidden = false; }, 640));
-    revealTimers.push(setTimeout(() => folder.classList.remove('is-armed'), 820));
-  }
-
-  function revealPieces(ctx) {
-    const ordered = ctx.pieces.slice().sort((a, b) =>
-      (REVEAL_ORDER[a.item.type] || 9) - (REVEAL_ORDER[b.item.type] || 9) || (a.item.z - b.item.z));
-
-    ordered.forEach((p, i) => {
-      revealTimers.push(setTimeout(() => { p.el.classList.add('is-revealed'); }, i * 130));
-    });
-
-    // Los hilos rojos se trazan al final, cuando ya hay layout estable.
-    revealTimers.push(setTimeout(() => drawThreads(ctx), ordered.length * 130 + 150));
-  }
-
   function drawThreads(ctx) {
     const { svg, pieces, links } = ctx;
+    svg.innerHTML = '';
     if (!links || !links.length) return;
-    // mapa id → elemento
     const byId = {};
     pieces.forEach((p) => { byId[p.item.id] = p.el; });
-    svg.innerHTML = '';
     links.forEach((l) => {
       const a = byId[l.from], b = byId[l.to];
       if (!a || !b) return;
@@ -236,14 +148,166 @@
     });
   }
 
+  // ════════════════════════════════════════════════════════════════
+  //  VISOR — estado + paginación + página restringida + luz UV
+  // ════════════════════════════════════════════════════════════════
+  const viewer  = document.getElementById('folder-viewer');
+  const folder  = document.getElementById('fv-folder');
+  const canvas  = document.getElementById('fv-canvas');
+  const addInfo = document.getElementById('fv-addinfo');
+  const sticker = document.getElementById('fv-sticker');
+  const pager   = document.getElementById('fv-pager');
+  const tabsBox = document.getElementById('fv-tabs');
+  const prevBtn = document.getElementById('fv-prev');
+  const nextBtn = document.getElementById('fv-next');
+  const uvBtn   = document.getElementById('fv-uv');
+  const keybox  = document.getElementById('fv-keybox');
+  const keyInput = document.getElementById('fv-keybox-input');
+
+  const DEFAULT_KEY = 'AXIOM';
+  const pageKey = (pg) => String((pg && pg.key) || DEFAULT_KEY).trim().toUpperCase();
+  const isRestricted = (pg) => !!(pg && pg.restricted);
+
+  let view = null;          // { pages, index, unlocked:Set, ctx }
+  let isOpen = false;
+  let pendingPage = null;   // página esperando clave
+  let uvOn = false;
+
+  function sound(name) { try { if (window.AxiomSound) window.AxiomSound.play(name); } catch (_) {} }
+
+  // ── render de una página concreta ──
+  function renderPage(animate) {
+    clearTimers();
+    canvas.innerHTML = '';
+    const page = view.pages[view.index] || { items: [], links: [] };
+
+    const svg = document.createElementNS(SVGNS, 'svg');
+    svg.setAttribute('class', 'ws-links');
+    svg.setAttribute('width', '900'); svg.setAttribute('height', '700');
+    canvas.appendChild(svg);
+
+    const pieces = (page.items || []).slice().sort((a, b) => a.z - b.z).map((item) => {
+      const el = buildPiece(item); canvas.appendChild(el); return { el, item };
+    });
+    injectUvMark();
+    view.ctx = { svg, pieces, links: page.links || [] };
+
+    if (animate) { canvas.classList.remove('fv-page-anim'); void canvas.offsetWidth; canvas.classList.add('fv-page-anim'); }
+
+    const ordered = pieces.slice().sort((a, b) =>
+      (REVEAL_ORDER[a.item.type] || 9) - (REVEAL_ORDER[b.item.type] || 9) || (a.item.z - b.item.z));
+    ordered.forEach((p, i) => revealTimers.push(setTimeout(() => p.el.classList.add('is-revealed'), i * 70)));
+    revealTimers.push(setTimeout(() => drawThreads(view.ctx), ordered.length * 70 + 120));
+
+    buildTabs();
+    updatePager();
+  }
+
+  // Marca oculta revelable con luz UV. En la 1ª hoja delata la clave restringida.
+  function injectUvMark() {
+    const mark = document.createElement('div');
+    mark.className = 'uv-hidden uv-mark';
+    const restricted = view.pages.find(isRestricted);
+    mark.textContent = (restricted && view.index === 0)
+      ? '⟂ CLAVE OCULTA → ' + pageKey(restricted)
+      : '⟂ AXIOM/UV ' + String(view.index + 1).padStart(2, '0') + ' — SIN MARCAS';
+    canvas.appendChild(mark);
+  }
+
+  function buildTabs() {
+    tabsBox.innerHTML = '';
+    view.pages.forEach((pg, i) => {
+      const t = document.createElement('button');
+      const locked = isRestricted(pg) && !view.unlocked.has(i);
+      t.className = 'fv-tab' + (i === view.index ? ' is-active' : '') + (locked ? ' is-locked' : '');
+      t.textContent = 'PAG_' + String(i + 1).padStart(2, '0');
+      t.addEventListener('click', () => goToPage(i));
+      tabsBox.appendChild(t);
+    });
+  }
+  function updatePager() {
+    prevBtn.disabled = view.index <= 0;
+    nextBtn.disabled = view.index >= view.pages.length - 1;
+  }
+
+  function goToPage(i) {
+    if (!view || i < 0 || i >= view.pages.length || i === view.index) return;
+    const target = view.pages[i];
+    if (isRestricted(target) && !view.unlocked.has(i)) { promptKey(i); return; }
+    hideKeybox();
+    view.index = i;
+    renderPage(true);
+  }
+
+  // ── página de clasificación restringida ──
+  function promptKey(i) {
+    pendingPage = i;
+    keybox.hidden = false;
+    pager.classList.add('is-restricted');
+    keyInput.value = ''; keyInput.placeholder = 'CLAVE>'; keyInput.focus();
+  }
+  function hideKeybox() { keybox.hidden = true; pager.classList.remove('is-restricted'); pendingPage = null; }
+  function tryKey() {
+    if (pendingPage == null) return;
+    if (keyInput.value.trim().toUpperCase() === pageKey(view.pages[pendingPage])) {
+      const i = pendingPage; view.unlocked.add(i); hideKeybox();
+      view.index = i; renderPage(true); sound('open');
+    } else { keyInput.value = ''; keyInput.placeholder = 'CLAVE INCORRECTA'; }
+  }
+
+  // ── luz UV ──
+  function setUv(on) {
+    uvOn = on;
+    viewer.classList.toggle('uv-on', on);
+    uvBtn.classList.toggle('is-on', on);
+    uvBtn.textContent = '[ LUZ_UV: ' + (on ? 'ON' : 'OFF') + ' ]';
+  }
+
+  function openFolder(folio, local) {
+    document.getElementById('fv-title').textContent = folio.id;
+    document.getElementById('fv-code').textContent = folio.id;
+    canvas.dataset.label = (folio.title || 'EVIDENCIA').toUpperCase();
+    if (sticker) sticker.innerHTML = `FILED ${esc(folio.date || '██.██.██')} · SIG AGT-${esc((folio.id.match(/\d+/) || ['00'])[0])}`;
+    addInfo.href = (window.AXIOM_FOLIO_EXPAND_URL || '#').replace('FOLIO-XXXX', folio.id);
+    addInfo.hidden = true;
+    setUv(false); hideKeybox(); pager.hidden = true;
+
+    const board = (local && local.board) || null;
+    let pages = (board && board.pages && board.pages.length) ? board.pages : null;
+    if (!pages) {
+      pages = [{ items: [{ id: 'na', type: 'note', variant: 'cipher', x: 300, y: 280, z: 1,
+                           text: 'EVIDENCIA NO DISPONIBLE\nEN ESTE TERMINAL.' }], links: [] }];
+    }
+    view = { pages, index: 0, unlocked: new Set(), ctx: null };
+
+    sound('open');
+    viewer.hidden = false;
+    folder.classList.add('is-closed', 'is-armed');
+    folder.classList.remove('is-open');
+    isOpen = true;
+
+    void folder.offsetWidth;
+    requestAnimationFrame(() => {
+      viewer.classList.add('is-visible');
+      requestAnimationFrame(() => { folder.classList.remove('is-closed'); folder.classList.add('is-open'); });
+    });
+
+    // Tras el deslizamiento (0.3s) montamos la página y la paginación.
+    clearTimers();
+    revealTimers.push(setTimeout(() => {
+      pager.hidden = false;
+      renderPage(false);
+      addInfo.hidden = false;
+      folder.classList.remove('is-armed');
+    }, 320));
+  }
+
   function closeFolder() {
     if (!isOpen) return;
     clearTimers();
-    addInfo.hidden = true;
-    // Sonido tosco de clip metálico al cerrar.
+    addInfo.hidden = true; pager.hidden = true; hideKeybox(); setUv(false);
+    if (view && view.ctx) { view.ctx.pieces.forEach((p) => p.el.classList.remove('is-revealed')); view.ctx.svg.innerHTML = ''; }
     sound('close');
-    // Animación inversa: ocultar piezas, replegar la solapa y desvanecer la capa.
-    if (boardCtx) { boardCtx.pieces.forEach((p) => p.el.classList.remove('is-revealed')); boardCtx.svg.innerHTML = ''; }
     folder.classList.add('is-armed');
     folder.classList.remove('is-open');
     folder.classList.add('is-closed');
@@ -251,20 +315,28 @@
     isOpen = false;
     setTimeout(() => {
       viewer.hidden = true; folder.classList.remove('is-armed');
-      canvas.innerHTML = ''; boardCtx = null;
-    }, 520);
+      canvas.innerHTML = ''; view = null;
+    }, 340);
   }
 
-  // Reproductor diegético (definido en main.js; tolerante si aún no cargó).
-  function sound(name) { try { if (window.AxiomSound) window.AxiomSound.play(name); } catch (_) {} }
-
-  // ── arranque ──  (renderList PRIMERO: que la lista nunca dependa del visor)
+  // ── arranque ──  (renderList PRIMERO: la lista nunca depende del visor)
   renderList();
 
   const closeBtn = document.getElementById('fv-close');
   if (closeBtn) closeBtn.addEventListener('click', closeFolder);
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && isOpen) closeFolder(); });
-  // Clic en el fondo oscuro (fuera de la carpeta) también cierra → vía de escape.
+  if (prevBtn) prevBtn.addEventListener('click', () => view && goToPage(view.index - 1));
+  if (nextBtn) nextBtn.addEventListener('click', () => view && goToPage(view.index + 1));
+  if (uvBtn) uvBtn.addEventListener('click', () => setUv(!uvOn));
+  if (keyInput) keyInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') tryKey(); });
+  const keyGo = document.getElementById('fv-keybox-go');
+  if (keyGo) keyGo.addEventListener('click', tryKey);
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape' || !isOpen) return;
+    if (!keybox.hidden) { hideKeybox(); return; }   // ESC cierra primero la consola
+    closeFolder();
+  });
+  // Clic en el fondo oscuro (fuera de la carpeta) también cierra.
   if (viewer) viewer.addEventListener('click', (e) => {
     if (e.target === viewer || (e.target.classList && e.target.classList.contains('fv-stage'))) closeFolder();
   });

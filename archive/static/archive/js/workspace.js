@@ -241,10 +241,17 @@
   function addItem(type, at) {
     if (!CAN_ADD) return null;
     const item = defaultItem(type);
-    if (at) { item.x = at.x; item.y = at.y; } else { item.x += rand(-30, 30); item.y += rand(-30, 30); }
     activePage().items.push(item);
     const el = buildEl(item);
-    $('ws-canvas').appendChild(el);
+    const canvas = $('ws-canvas');
+    canvas.appendChild(el);
+    // Aparición instantánea en el CENTRO EXACTO de la página (medido tras render).
+    if (at) { item.x = at.x; item.y = at.y; }
+    else {
+      item.x = Math.round((canvas.clientWidth  - el.offsetWidth)  / 2) + rand(-10, 10);
+      item.y = Math.round((canvas.clientHeight - el.offsetHeight) / 2) + rand(-10, 10);
+    }
+    positionEl(el, item);
     selectEl(el, item);
     if (item.type === 'polaroid' || item.type === 'idcard') {
       const photo = el.querySelector('[data-role="photo"]');
@@ -305,11 +312,38 @@
     autosave();
   });
 
+  // ── Menú de clic derecho (rústico): BORRAR / TRAER_AL_FRENTE / ROTAR_90º ──
+  const rmenu = $('ws-rmenu');
+  let rmenuTarget = null;
+  stage.addEventListener('contextmenu', (e) => {
+    const el = e.target.closest('.ev'); if (!el) return;
+    e.preventDefault();
+    const item = findItem(el.dataset.id);
+    if (!item || isLocked(item.id)) return;
+    rmenuTarget = { el, item };
+    selectEl(el, item); hideCtx();
+    rmenu.style.left = Math.min(e.clientX, window.innerWidth - 180) + 'px';
+    rmenu.style.top = e.clientY + 'px';
+    rmenu.hidden = false;
+  });
+  rmenu.addEventListener('click', (e) => {
+    const act = e.target.dataset.ract; if (!act || !rmenuTarget) return;
+    const { el, item } = rmenuTarget;
+    if (act === 'front') bringToFront(item, el);
+    if (act === 'rot90') rotate(item, el, 90);
+    if (act === 'del')   deleteItem(item, el);
+    rmenu.hidden = true; autosave();
+  });
+  document.addEventListener('pointerdown', (e) => {
+    if (!rmenu.hidden && !e.target.closest('#ws-rmenu')) rmenu.hidden = true;
+  });
+
   // ════════════════════════════════════════════════════════════════
   //  ARRASTRE (deshabilitado en modo Hilo o Sello)
   // ════════════════════════════════════════════════════════════════
   let drag = null;
   stage.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0) return;             // solo botón izquierdo arrastra
     if (linkMode || stampPending) return;
     if (e.target.isContentEditable) return;
     const el = e.target.closest('.ev'); if (!el) return;
@@ -577,6 +611,22 @@
     if (!CAN_ADD) return;
     state.pages.push(newPage()); state.active = state.pages.length - 1;
     render(); autosave(); toast('PÁGINA AGREGADA', 'ok');
+  });
+  // Marcar/desmarcar la página activa como restringida (clave exigida en el visor).
+  const restrictBtn = $('ws-restrict');
+  if (restrictBtn) restrictBtn.addEventListener('click', () => {
+    if (!CAN_ADD) return;
+    const pg = activePage();
+    if (pg.restricted) {
+      delete pg.restricted; delete pg.key;
+      toast('PÁGINA DESBLOQUEADA', 'ok');
+    } else {
+      const k = (window.prompt('CLAVE para abrir esta página en el visor:') || '').trim();
+      if (!k) return;
+      pg.restricted = true; pg.key = k.toUpperCase();
+      toast('PÁGINA ' + (state.active + 1) + ' RESTRINGIDA — clave: ' + pg.key, 'ok');
+    }
+    autosave();
   });
   $('ws-link').addEventListener('click', () => setLinkMode(!linkMode));
   $('ws-save').addEventListener('click', openSaveModal);

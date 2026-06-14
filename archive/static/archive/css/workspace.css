@@ -365,6 +365,24 @@
 .ws-ctx .ws-ctx--danger { color: var(--red); }
 .ws-ctx .ws-ctx--danger:hover { background: var(--red); color: var(--black); }
 
+/* ── Menú de clic derecho (rústico, monocromático) ── */
+.ws-rmenu {
+  position: fixed; z-index: 9100; min-width: 170px;
+  background: var(--black); border: 2px solid var(--line-hot);
+  display: flex; flex-direction: column;
+}
+.ws-rmenu[hidden] { display: none; }
+.ws-rmenu button {
+  font-family: 'VT323', monospace; font-size: 1rem; letter-spacing: 0.06em;
+  text-align: left; color: var(--amber); background: var(--black);
+  border: none; border-bottom: 1px solid var(--line-hot);
+  padding: 0.45rem 0.7rem; cursor: pointer;
+}
+.ws-rmenu button:last-child { border-bottom: none; }
+.ws-rmenu button:hover { background: var(--amber); color: var(--black); }
+.ws-rmenu .ws-rmenu--danger { color: var(--red); }
+.ws-rmenu .ws-rmenu--danger:hover { background: var(--red); color: var(--black); }
+
 /* ══════════════════════════════════════════
    MODALES (paneles de terminal planos)
 ══════════════════════════════════════════ */
