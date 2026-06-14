@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AXIOM — MESA DE INVESTIGACIÓN</title>
+<title>ASPERTER VS REAL LIFE</title>
 <meta name="robots" content="noindex, nofollow">
 {% load static %}
 <style>
@@ -39,14 +39,47 @@
   #desk-fallback p { max-width: 480px; line-height: 1.7; color: #ffb000; }
   #desk-fallback a { color: #6effa0; }
   .vacio { color: #b97e00; }
+
+  /* ── MENÚ PRINCIPAL CINEMATOGRÁFICO ── */
+  #menu { position: fixed; inset: 0; z-index: 30; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 2.2rem;
+    background: radial-gradient(ellipse at 50% 40%, rgba(0,0,0,0.08), rgba(0,0,0,0.55) 72%);
+    transition: opacity 0.8s ease; }
+  #menu.hidden { opacity: 0; pointer-events: none; }
+  .menu-title { text-align: center; line-height: 0.92; font-weight: 900;
+    font-family: 'Times New Roman', Georgia, serif; color: #e9e2cf;
+    font-size: clamp(2.8rem, 9vw, 7rem); letter-spacing: 0.04em;
+    text-shadow: -2px 0 rgba(255,0,60,0.55), 2px 0 rgba(0,200,255,0.5), 0 0 18px rgba(0,0,0,0.9);
+    animation: film-jitter 0.18s steps(2) infinite; }
+  .menu-title span { display: block; font-size: 0.34em; letter-spacing: 0.5em;
+    color: #b08a3a; margin: 0.1em 0; }
+  @keyframes film-jitter {
+    0% { transform: translate(0,0); } 50% { transform: translate(0.6px,-0.5px); }
+    100% { transform: translate(-0.5px,0.4px); } }
+  .menu-play { font-family: 'Courier New', monospace; font-size: 1.15rem; letter-spacing: 0.1em;
+    color: #1a1208; background: linear-gradient(180deg,#d9b24a,#a9821f); cursor: pointer;
+    border: 3px solid #5e470f; border-bottom-width: 7px; padding: 0.8rem 1.6rem; text-transform: uppercase;
+    box-shadow: 0 6px 0 #2a1f08, 0 10px 18px rgba(0,0,0,0.6);
+    transition: transform 0.06s, box-shadow 0.06s, filter 0.12s; }
+  .menu-play:hover { filter: brightness(1.12); transform: translateY(3px); box-shadow: 0 3px 0 #2a1f08, 0 6px 12px rgba(0,0,0,0.6); }
+  .menu-play:active { transform: translateY(6px); box-shadow: 0 1px 0 #2a1f08; }
+  .menu-foot { font-family: 'Courier New', monospace; font-size: 0.8rem; letter-spacing: 0.3em;
+    color: #8a7a4a; text-transform: uppercase; }
 </style>
 </head>
 <body>
 
 <canvas id="desk-canvas"></canvas>
 
+<!-- Menú principal cinematográfico -->
+<div id="menu">
+  <div class="menu-title">ASPERTER<span>— VS —</span>REAL LIFE</div>
+  <button id="menu-play" class="menu-play">[ JUGAR_LA_INVESTIGACIÓN ]</button>
+  <div class="menu-foot">{{ agent_name }} · UNA INVESTIGACIÓN EN LA OSCURIDAD</div>
+</div>
+
 <div class="hud hud-top">
-  <div class="hud-title">AXIOM // MESA DE INVESTIGACIÓN
+  <div class="hud-title">ASPERTER vs REAL LIFE
     <small>{{ agent_name }} {% if agent_folios_json == '[]' %}· <span class="vacio">SIN EXPEDIENTES</span>{% endif %}</small>
   </div>
   <a class="hud-exit" href="{% url 'archive' %}">[ SALIR ]</a>
