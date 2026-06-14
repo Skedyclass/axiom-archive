@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASPERTER VS REAL LIFE</title>
+<meta name="robots" content="noindex, nofollow">
+{% load static %}
+<link rel="stylesheet" href="{% static 'archive/css/main.css' %}">
+</head>
+<body>
+
+<canvas id="game-canvas"></canvas>
+<div class="film"></div>
+
+<!-- Menú principal -->
+<div id="menu">
+  <div class="menu-title">ASPERTER<span>— VS —</span>REAL LIFE</div>
+  <button id="menu-play" class="menu-play">[ INICIAR LA INVESTIGACIÓN ]</button>
+  <div class="menu-foot">UN MISTERIO DE WINSTON CARREY</div>
+</div>
+
+<!-- Subtítulos de cinemática -->
+<div id="subs"><div class="subs-who" id="subs-who"></div><div class="subs-text" id="subs-text"></div></div>
+
+<!-- HUD -->
+<div class="hud-help" id="hud-help" style="display:none"></div>
+<div id="prompt">[ CLIC PARA INTERACTUAR ]</div>
+
+<div id="fallback"><p>⚠ Tu navegador no pudo iniciar el motor 3D (WebGL).<br>Prueba con un navegador moderno con aceleración por hardware.</p></div>
+
+<!-- Three.js sin paso de build -->
+<script type="importmap">
+{ "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+</script>
+<script type="module" src="{% static 'archive/js/main.js' %}"></script>
+<script>
+  setTimeout(function(){ if(!window.__gameOK) document.getElementById('fallback').style.display='flex'; }, 5000);
+</script>
+
+</body>
+</html>
