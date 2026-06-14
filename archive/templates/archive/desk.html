@@ -25,6 +25,14 @@
     font-size: 0.78rem; color: #c9a23a; text-shadow: 0 0 6px rgba(0,0,0,0.8); }
   .hud-bottom b { color: #ffb000; }
 
+  /* Prompt parpadeante de sistema (Fase 3) */
+  #desk-prompt { position: fixed; left: 1rem; bottom: 2.6rem; z-index: 12;
+    font-size: 0.9rem; color: #ffb000; letter-spacing: 0.08em;
+    text-shadow: 0 0 8px rgba(255,176,0,0.6); pointer-events: none;
+    animation: dp-blink 0.9s steps(2, start) infinite; display: none; }
+  #desk-prompt.is-on { display: block; }
+  @keyframes dp-blink { 50% { opacity: 0.25; } }
+
   #desk-fallback { position: fixed; inset: 0; z-index: 20; display: none;
     align-items: center; justify-content: center; text-align: center; padding: 2rem;
     background: #08080a; }
@@ -44,9 +52,11 @@
   <a class="hud-exit" href="{% url 'archive' %}">[ SALIR ]</a>
 </div>
 
-<div class="hud hud-bottom">
-  <b>CLIC</b> abrir/cerrar sobre · <b>ARRASTRAR</b> mover · <b>DOBLE CLIC</b> inspeccionar (rotar) · <b>ESC</b> soltar
+<div class="hud hud-bottom" id="hud-help">
+  <b>← →</b> / <b>A D</b> avanzar por el pasillo
 </div>
+
+<div id="desk-prompt">[ MOUSE_ACTIVO: HAGA CLIC PARA INSPECCIONAR EXPEDIENTE ]</div>
 
 <div id="desk-fallback">
   <p>⚠ Tu navegador no pudo iniciar la mesa 3D (WebGL).<br>
