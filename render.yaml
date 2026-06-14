@@ -15,6 +15,6 @@ services:
       - key: DEBUG
         value: "False"
       - key: WEB_CONCURRENCY
-        value: "4"
+        value: "2"
       - key: AXIOM_ACCESS_CODE
         sync: false                # Defínelo tú en el panel (oculto)
