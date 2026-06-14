@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AXIOM — MESA DE INVESTIGACIÓN</title>
+<meta name="robots" content="noindex, nofollow">
+{% load static %}
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; background: #050506; overflow: hidden;
+    font-family: 'Courier New', monospace; color: #ffb000; }
+  #desk-canvas { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; }
+
+  /* HUD plano sobre el lienzo 3D */
+  .hud { position: fixed; z-index: 10; pointer-events: none; letter-spacing: 0.06em; }
+  .hud-top { top: 0; left: 0; right: 0; display: flex; justify-content: space-between;
+    padding: 0.7rem 1rem; text-shadow: 0 0 6px rgba(255,176,0,0.4); }
+  .hud-title { font-size: 1.05rem; }
+  .hud-title small { display:block; font-size: 0.7rem; color: #b97e00; }
+  .hud-exit { pointer-events: auto; color: #ff6a6a; text-decoration: none;
+    border: 2px solid #8a1414; background: rgba(0,0,0,0.6); padding: 0.35rem 0.7rem; font-size: 0.85rem; }
+  .hud-exit:hover { background: #8a1414; color: #fff; }
+  .hud-bottom { bottom: 0; left: 0; right: 0; text-align: center; padding: 0.7rem;
+    font-size: 0.78rem; color: #c9a23a; text-shadow: 0 0 6px rgba(0,0,0,0.8); }
+  .hud-bottom b { color: #ffb000; }
+
+  #desk-fallback { position: fixed; inset: 0; z-index: 20; display: none;
+    align-items: center; justify-content: center; text-align: center; padding: 2rem;
+    background: #08080a; }
+  #desk-fallback p { max-width: 480px; line-height: 1.7; color: #ffb000; }
+  #desk-fallback a { color: #6effa0; }
+  .vacio { color: #b97e00; }
+</style>
+</head>
+<body>
+
+<canvas id="desk-canvas"></canvas>
+
+<div class="hud hud-top">
+  <div class="hud-title">AXIOM // MESA DE INVESTIGACIÓN
+    <small>{{ agent_name }} {% if agent_folios_json == '[]' %}· <span class="vacio">SIN EXPEDIENTES</span>{% endif %}</small>
+  </div>
+  <a class="hud-exit" href="{% url 'archive' %}">[ SALIR ]</a>
+</div>
+
+<div class="hud hud-bottom">
+  <b>CLIC</b> abrir/cerrar sobre · <b>ARRASTRAR</b> mover · <b>DOBLE CLIC</b> inspeccionar (rotar) · <b>ESC</b> soltar
+</div>
+
+<div id="desk-fallback">
+  <p>⚠ Tu navegador no pudo iniciar la mesa 3D (WebGL).<br>
+     Prueba con un navegador moderno con aceleración por hardware activada.<br><br>
+     <a href="{% url 'archive' %}">← Volver al archivero</a></p>
+</div>
+
+{# IDs/títulos autorizados por el servidor; los datos pesados están en localStorage #}
+<script id="desk-folios" type="application/json">{{ agent_folios_json|safe }}</script>
+<script>
+  window.AXIOM_AGENT_ID = "{{ request.session.agent_id|default:'GUEST' }}";
+</script>
+
+<!-- Three.js sin paso de build, vía importmap -->
+<script type="importmap">
+{ "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+</script>
+<script type="module" src="{% static 'archive/js/desk.js' %}"></script>
+<script>
+  /* Si el módulo o el CDN de Three.js no cargan, mostramos el aviso de respaldo. */
+  setTimeout(function () {
+    if (!window.__axiomDeskOK) document.getElementById('desk-fallback').style.display = 'flex';
+  }, 5000);
+</script>
+
+</body>
+</html>

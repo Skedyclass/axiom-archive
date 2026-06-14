@@ -58,6 +58,16 @@ def logout_view(request):
 
 
 @login_required
+def desk_view(request):
+    """Mesa de investigación 3D (WebGL). Reusa los folios autorizados de la
+    sesión; los datos pesados los lee desk.js del localStorage del agente."""
+    return render(request, 'archive/desk.html', {
+        'agent_folios_json': json.dumps(request.session.get('agent_folios', [])),
+        'agent_name': request.session.get('agent_name', 'AGENTE'),
+    })
+
+
+@login_required
 def archive_view(request):
     # El servidor solo conoce los IDs/títulos AUTORIZADOS (sin datos pesados).
     # Los datos visuales (imágenes, coordenadas, notas) viven en localStorage y

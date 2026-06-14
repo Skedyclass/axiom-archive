@@ -7,6 +7,9 @@ urlpatterns = [
     path('archive/', views.archive_view, name='archive'),
     path('archive/folder/<str:folder_id>/', views.folder_view, name='folder'),
 
+    # ── Mesa de investigación 3D (experimental, WebGL/Three.js) ──
+    path('archive/desk/', views.desk_view, name='desk'),
+
     # ── Módulo de Creación de Expedientes — "Mesa de Trabajo" ──
     path('archive/workspace/', views.workspace_view, name='workspace'),
     path('archive/workspace/save/', views.workspace_save, name='workspace_save'),
