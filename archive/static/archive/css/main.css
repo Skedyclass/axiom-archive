@@ -725,3 +725,46 @@ body {
   .folder-header::after { display: none; }
   .archive-topbar { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   HARDWARE ELECTROMECÁNICO — Guerra Fría
+══════════════════════════════════════════════════════════════════ */
+
+/* Botones de navegación con rebote mecánico (baquelita + resorte) */
+.fv-pg-btn {
+  transition: transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.1s, color 0.1s;
+}
+.fv-pg-btn:active:not(:disabled) {
+  transform: translateY(4px);
+  transition: transform 0.015s linear;   /* hundido instantáneo; el retorno rebota */
+}
+
+/* Desgaste por calor de la lámpara del proyector (inactividad 3 min) */
+.ws-canvas { transition: filter 5s ease; }
+.lamp-hot .ws-canvas { filter: sepia(0.6) brightness(0.9) contrast(1.02); }
+
+/* Teletipo (tira de papel continuo) */
+.axiom-teletype {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 99980;
+  background: #0c0c0c; border-bottom: 2px solid #b97e00;
+  font-family: 'Share Tech Mono', monospace; font-size: 0.82rem; letter-spacing: 0.03em;
+  color: #ffcf6a; padding: 0.3rem 0.9rem; white-space: pre; overflow: hidden;
+  transform: translateY(-105%); transition: transform 0.2s ease;
+  text-shadow: 0 0 4px rgba(255,176,0,0.5);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.6);
+}
+.axiom-teletype.is-on { transform: translateY(0); }
+.axiom-teletype::before { content: 'TTY '; opacity: 0.45; }
+.axiom-teletype-line::after { content: '▌'; animation: tt-caret 0.5s steps(2) infinite; }
+@keyframes tt-caret { 50% { opacity: 0; } }
+
+/* Osciloscopio (monitor de ondas) */
+.axiom-scope {
+  position: fixed; left: 50%; bottom: 72px; z-index: 99970;
+  width: 600px; max-width: 90vw; height: 90px;
+  transform: translateX(-50%) translateY(170%); transition: transform 0.25s ease;
+  background: rgba(0,12,0,0.88); border: 2px solid #119a11;
+  box-shadow: 0 0 16px rgba(0,255,0,0.18), inset 0 0 30px rgba(0,40,0,0.6);
+  image-rendering: pixelated;
+}
+.axiom-scope.is-on { transform: translateX(-50%) translateY(0); }

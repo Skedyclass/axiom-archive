@@ -174,6 +174,7 @@
   let uvOn = false;
 
   function sound(name) { try { if (window.AxiomSound) window.AxiomSound.play(name); } catch (_) {} }
+  function tele(msg)   { try { if (window.AxiomTeletype) window.AxiomTeletype.print(msg); } catch (_) {} }
 
   // ── render de una página concreta ──
   function renderPage(animate) {
@@ -245,6 +246,7 @@
     keybox.hidden = false;
     pager.classList.add('is-restricted');
     keyInput.value = ''; keyInput.placeholder = 'CLAVE>'; keyInput.focus();
+    tele('ACCESO RESTRINGIDO — CLASIFICACION SUPERIOR REQUERIDA');
   }
   function hideKeybox() { keybox.hidden = true; pager.classList.remove('is-restricted'); pendingPage = null; }
   function tryKey() {
@@ -252,7 +254,8 @@
     if (keyInput.value.trim().toUpperCase() === pageKey(view.pages[pendingPage])) {
       const i = pendingPage; view.unlocked.add(i); hideKeybox();
       view.index = i; renderPage(true); sound('open');
-    } else { keyInput.value = ''; keyInput.placeholder = 'CLAVE INCORRECTA'; }
+      tele('CLAVE ACEPTADA — PAG_' + String(i + 1).padStart(2, '0') + ' DESCIFRADA');
+    } else { keyInput.value = ''; keyInput.placeholder = 'CLAVE INCORRECTA'; tele('CLAVE INCORRECTA — REINTENTE'); }
   }
 
   // ── luz UV ──
@@ -281,6 +284,7 @@
     view = { pages, index: 0, unlocked: new Set(), ctx: null };
 
     sound('open');
+    tele('EXPEDIENTE ' + folio.id + ' // DESCLASIFICADO — INSPECCION EN CURSO');
     viewer.hidden = false;
     folder.classList.add('is-closed', 'is-armed');
     folder.classList.remove('is-open');
@@ -306,6 +310,7 @@
     if (!isOpen) return;
     clearTimers();
     addInfo.hidden = true; pager.hidden = true; hideKeybox(); setUv(false);
+    if (window.AxiomScope) window.AxiomScope.stop();
     if (view && view.ctx) { view.ctx.pieces.forEach((p) => p.el.classList.remove('is-revealed')); view.ctx.svg.innerHTML = ''; }
     sound('close');
     folder.classList.add('is-armed');
@@ -336,6 +341,14 @@
     if (!keybox.hidden) { hideKeybox(); return; }   // ESC cierra primero la consola
     closeFolder();
   });
+  // Clic en una cinta de carrete → enciende/apaga el osciloscopio de audio.
+  if (canvas) canvas.addEventListener('click', (e) => {
+    if (!e.target.closest('.ev-cassette')) return;
+    const on = window.AxiomScope ? window.AxiomScope.toggle() : false;
+    tele(on ? 'REEL_TO_REEL // REPRODUCIENDO — MONITOR DE ONDAS ACTIVO'
+            : 'REEL_TO_REEL // CINTA DETENIDA');
+  });
+
   // Clic en el fondo oscuro (fuera de la carpeta) también cierra.
   if (viewer) viewer.addEventListener('click', (e) => {
     if (e.target === viewer || (e.target.classList && e.target.classList.contains('fv-stage'))) closeFolder();
